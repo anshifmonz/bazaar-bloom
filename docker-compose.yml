@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./server
+    image: e-commerce-server
+    container_name: e-commerce-server
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_URL=${DB_URL}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - PORT=${SERVER_PORT}
+    depends_on:
+      - postgresDb
+    volumes:
+      - ./server:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  postgresDb:
+    image: postgres
+    container_name: e-commerce-postgres
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - POSTGRES_USER:${DB_USER}
+      - POSTGRES_PASSWORD:${DB_PASSWORD}
+      - POSTGRES_DB:${DB_NAME}
+    volumes:
+      - ecommerce_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  ecommerce_db_data:
+    driver: local
