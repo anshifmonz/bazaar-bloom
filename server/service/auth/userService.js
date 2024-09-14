@@ -1,4 +1,4 @@
-import { db } from '../config/dbConfig.js'
+import { db } from '../../config/dbConfig.js'
 
 const getUserById = async (id, need) => {
   try {

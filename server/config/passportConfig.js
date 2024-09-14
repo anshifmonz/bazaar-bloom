@@ -2,7 +2,7 @@ import passport from 'passport'
 import { Strategy } from "passport-local";
 
 import authenticateUser from '../controller/auth/authController.js';
-import { getUserById } from "../service/userService.js";
+import { getUserById } from "../service/auth/userService.js";
 
 const initializePassport = (passport) => {
   passport.use(new Strategy({ usernameField: 'email' }, authenticateUser))

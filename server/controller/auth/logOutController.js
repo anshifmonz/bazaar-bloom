@@ -1,4 +1,4 @@
-const logOutController = async (req, res) => {
+const logOutController = (req, res) => {
   req.logOut(err => {
     if (err) return res.status(500).json({ message: 'Server error' });
     req.session.destroy(err => {

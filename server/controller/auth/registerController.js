@@ -1,5 +1,5 @@
-import { CreateUser, getUserByEmail } from '../service/userService.js';
-import { hashPassword } from '../utils/passwordHandler.js';
+import { CreateUser, getUserByEmail } from '../../service/auth/userService.js';
+import { hashPassword } from '../../utils/auth/passwordHandler.js';
 
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
