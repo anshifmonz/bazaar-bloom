@@ -31,7 +31,7 @@ const CreateUser = async (name, email, passwd) => {
     const res = await db.query(
       'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, passwd]
     )
-    return 'user created'
+    return res.rows;
   } catch (err) {
     console.log('CreateUser: ' + err);
     return 'err'

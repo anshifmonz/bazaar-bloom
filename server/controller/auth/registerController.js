@@ -1,5 +1,7 @@
+import { db } from '../../config/dbConfig.js';
 import { CreateUser, getUserByEmail } from '../../service/auth/userService.js';
 import { hashPassword } from '../../utils/auth/passwordHandler.js';
+import { createCart } from '../../service/store/cartService.js';
 
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -13,6 +15,12 @@ const registerUser = async (req, res) => {
   
   const result = await CreateUser(name, email, hashPasswd);
   if (result === 'err') res.status(500).json({ message: 'Server error' });
+
+  const userId = result[0].id;
+
+  const resp = createCart(userId);
+  if (resp === 'err') res.status(500).json({ message: 'Server error' });
+
   res.status(201).json({ success: true, message: 'User created' })
 }
 
