@@ -3,7 +3,7 @@ CREATE TABLE users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL  CHECK (email <> ''),
   password VARCHAR(255) NOT NULL CHECK (password <> ''),
-  role VARCHAR(10) DEFAULT 'customer', -- admin or customer
+  role VARCHAR(10) DEFAULT 'user', -- admin or user
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -20,15 +20,15 @@ CREATE TABLE products (
 
 CREATE TABLE cart (
   id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE cart_items (
   id SERIAL PRIMARY KEY,
-  cart_id INT REFERENCES cart(id) ON DELETE CASCADE,
-  product_id INT REFERENCES products(id),
-  quantity INT NOT NULL
+  cart_id INT REFERENCES cart(id) ON DELETE CASCADE NOT NULL,
+  product_id INT REFERENCES products(id) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE favorites (

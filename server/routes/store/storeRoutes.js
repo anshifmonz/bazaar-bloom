@@ -8,6 +8,9 @@ import updateProduct from '../../controller/store/product/updateProductControlle
 import delProduct from '../../controller/store/product/delProductController.js';
 
 import showCart from '../../controller/store/cart/showCartController.js';
+import addCartItem from '../../controller/store/cart/addCartItemController.js';
+import updateCartQuantity from '../../controller/store/cart/updateCartQuantityController.js';
+import delCartProduct from '../../controller/store/cart/delCartProductController.js';
 
 import showFavorite from '../../controller/store/showFavoriteController.js';
 import { isAuthenticated } from '../../middleware/authCheckMiddleware.js';
@@ -22,6 +25,9 @@ router.delete('/product', isAuthenticated, adminCheck, delProduct);
 
 // cart
 router.get('/cart', isAuthenticated, showCart);
+router.post('/cart', isAuthenticated, addCartItem);
+router.put('/cart', isAuthenticated, updateCartQuantity);
+router.delete('/cart', isAuthenticated, delCartProduct);
 
 // favorite
 router.get('/favourite', isAuthenticated, showFavorite);
