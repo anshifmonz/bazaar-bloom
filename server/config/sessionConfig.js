@@ -16,7 +16,7 @@ const sessionConfig = session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge:  1000 * 10
+    maxAge:  1000 * 60 * 5
   }
 })
 
