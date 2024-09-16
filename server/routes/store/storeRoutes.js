@@ -20,6 +20,13 @@ import showFavorite from '../../controller/store/favorites/showFavoriteControlle
 import addFavProductController from '../../controller/store/favorites/addFavProduct.js';
 import rmFavProductController from '../../controller/store/favorites/rmFavProduct.js';
 
+// order
+import orderProduct from '../../controller/store/order/orderProductController.js';
+import orderCart from '../../controller/store/order/orderCartController.js';
+import orderCancel from '../../controller/store/order/orderCancelController.js';
+import showOrders from '../../controller/store/order/showOrdersController.js';
+import showAOrderDetails from '../../controller/store/order/showAOrderDetailController.js';
+
 const router = e.Router();
 
 // product
@@ -38,5 +45,12 @@ router.delete('/cart', isAuthenticated, delCartProduct);
 router.get('/favorite', isAuthenticated, showFavorite);
 router.post('/favorite', isAuthenticated, addFavProductController);
 router.delete('/favorite', isAuthenticated, rmFavProductController);
+
+// order
+router.get('/orders/', isAuthenticated, showOrders);
+router.get('/orders/:orderId', isAuthenticated, showAOrderDetails);
+router.post('/order/product', isAuthenticated, orderProduct);
+router.post('/order/cart', isAuthenticated, orderCart);
+router.post('/order/cancel', isAuthenticated, orderCancel);
 
 export default router;

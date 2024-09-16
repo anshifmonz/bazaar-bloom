@@ -7,6 +7,12 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE "session" (
+  "sid" VARCHAR(44) PRIMARY KEY NOT NULL,
+  "sess" json NOT NULL,
+  "expire" TIMESTAMP(3) NOT NULL
+);
+
 CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -41,8 +47,8 @@ CREATE TABLE favorites (
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id),
-  status VARCHAR(50) DEFAULT 'pending', -- pending, completed, cancelled
-  total_price DECIMAL(10, 2) CHECK (total_price <> ''),
+  status VARCHAR(9) DEFAULT 'pending', -- pending, completed, cancelled
+  total_price DECIMAL(10, 2) CHECK (total_price >= 0),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -51,11 +57,5 @@ CREATE TABLE order_items (
   order_id INT REFERENCES orders(id) ON DELETE CASCADE,
   product_id INT REFERENCES products(id),
   quantity INT NOT NULL,
-  price_at_purchase DECIMAL(10, 2) NOT NULL CHECK (price_at_purchase <> '')
-);
-
-CREATE TABLE "session" (
-    "sid" VARCHAR(44) PRIMARY KEY NOT NULL,
-    "sess" json NOT NULL,
-    "expire" TIMESTAMP(3) NOT NULL
+  price_at_purchase DECIMAL(10, 2) NOT NULL CHECK (price_at_purchase >= 0)
 );
