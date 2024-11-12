@@ -6,7 +6,7 @@ const hashPassword = async (passwd) => {
     return await bcrypt.hash(passwd, saltRound);
   } catch (err) {
     console.log('hashPassword: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -15,7 +15,7 @@ const comaparePasswd = async (passwd, hashPasswd) => {
     return await bcrypt.compare(passwd, hashPasswd);
   } catch (err) {
     console.log('comaparePasswd: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 

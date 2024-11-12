@@ -5,7 +5,7 @@ const createCart = async (userId) => {
     await db.query('INSERT INTO cart (user_id) VALUES ($1)', [userId])
   } catch (err) {
     console.log('createCart: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 

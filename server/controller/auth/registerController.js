@@ -1,4 +1,3 @@
-import { db } from '../../config/dbConfig.js';
 import { CreateUser, getUserByEmail } from '../../service/auth/userService.js';
 import { hashPassword } from '../../utils/auth/passwordHandler.js';
 import { createCart } from '../../service/store/cartService.js';
@@ -6,22 +5,19 @@ import { createCart } from '../../service/store/cartService.js';
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
-  const isExist = await getUserByEmail(email, 'exist')
-  if (isExist === 'err') return res.status(500).json({ message: 'Server error' })
-  if (isExist) return res.status(302).json({ message: 'User already exist' })
+  try {
+    const isExist = await getUserByEmail(email, 'exist')
+    if (isExist) return res.status(302).json({ message: 'User already exist' })
+    
+    const hashPasswd = await hashPassword(password);
+    const result = await CreateUser(name, email, hashPasswd);
+    const userId = result[0].id;
+    createCart(userId);
   
-  const hashPasswd = await hashPassword(password);
-  if (hashPasswd === 'err') return res.status(500).json({ message: 'Server error' })
-  
-  const result = await CreateUser(name, email, hashPasswd);
-  if (result === 'err') res.status(500).json({ message: 'Server error' });
-
-  const userId = result[0].id;
-
-  const resp = createCart(userId);
-  if (resp === 'err') res.status(500).json({ message: 'Server error' });
-
-  res.status(201).json({ success: true, message: 'User created' })
+    res.status(201).json({ success: true, message: 'User created' })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
 }
 
 export default registerUser;

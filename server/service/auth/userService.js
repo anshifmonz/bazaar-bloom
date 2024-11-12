@@ -8,8 +8,7 @@ const getUserById = async (id, need) => {
     if (need === 'data') return res.rows[0] || false
     if (need === 'exist') return res.rows.length > 0
   } catch (err) {
-    console.log('getUserById: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -21,8 +20,7 @@ const getUserByEmail = async (email, need) => {
     if (need === 'data') return res.rows[0] || false
     if (need === 'exist') return res.rows.length > 0
   } catch (err) {
-    console.log('getUserByEmail: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -33,8 +31,7 @@ const CreateUser = async (name, email, passwd) => {
     )
     return res.rows;
   } catch (err) {
-    console.log('CreateUser: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
