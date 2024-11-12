@@ -37,17 +37,22 @@ const updateProduct = async (query, values) => {
 }
 
 const delProduct = async (id) => {
+
+  if (Array.isArray(id) && id.length === 0) {
+    return
+  }
+
   let query = 'DELETE FROM products WHERE id IN (';
-  let valueIndex = 1;
+  let paramIndex = 1;
   let values = [];
 
-  // for deleting multiple product at a time
   if (typeof(id) === 'object') {
+    // for deleting multiple products at a time
     id.forEach((ele, i) => {
-      query += `$${valueIndex}`;
+      query += `$${paramIndex}`;
       if (i != id.length - 1)  query += ', '
       values.push(ele);
-      valueIndex++;
+      paramIndex++;
     });
     
   } else {
@@ -58,7 +63,7 @@ const delProduct = async (id) => {
   
   try {
     await db.query(query, values)
-    return { query, values }
+    return
   } catch (err) {
     return 'err'
   }
