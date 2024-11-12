@@ -12,7 +12,7 @@ const getFavProducts = async (userId) => {
     return resp.rows
   } catch (err) {
     console.log('getFav: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -24,7 +24,7 @@ const addFavProduct = async (userId, productId) => {
     )
   } catch (err) {
     console.log('addFavProduct: ' + err);    
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -38,7 +38,7 @@ const rmFavProduct = async (userId, productId) => {
     )
   } catch (err) {
     console.log('rmFavProduct: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 

@@ -16,7 +16,7 @@ const showOrder = async (userId) => {
     return resp.rows;
   } catch (err) {
     console.log('showOrder: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -36,7 +36,7 @@ const showAOrderDetails = async (userId, orderId) => {
     return resp.rows;
   } catch (err) {
     console.log('showAOrderDetails: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -65,7 +65,7 @@ const orderProduct = async (userId, productId, quantity) => {
 
   } catch (err) {
     console.log('orderProduct: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -124,7 +124,7 @@ const orderCart = async (userId) => {
 
   } catch (err) {
     console.log('orderCart: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -136,7 +136,7 @@ const cancelOrder = async (userId, orderId) => {
     );
   } catch (err) {
     console.log('cancelOrder: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 

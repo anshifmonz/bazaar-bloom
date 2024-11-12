@@ -1,7 +1,4 @@
-const updateDataExtractor = (req) => {
-  const { productId, name, description, price, stock, category, img_url } = req.body
-
-  if (!productId) return 'Product id required'
+const updateDataExtractor = (productId, name, description, price, stock, category, img_url) => {
   
   let query = 'UPDATE products SET'
   let valueIndex = 1;

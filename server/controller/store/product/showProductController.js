@@ -5,10 +5,12 @@ const showProductController = async (req, res) => {
 
   const { query, values } = productFiler(req);
 
-  const resp = await getProducts(query, values)
-  if (resp === 'err') return res.status(500).json({ success: false, message: 'Server error' });
-
-  res.status(200).json({ success: true, data: resp });
+  try {
+    const resp = await getProducts(query, values);
+    res.status(200).json({ success: true, data: resp });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 }
 
 export default showProductController;

@@ -15,7 +15,8 @@ const checkoutOrder = async (userId) => {
     return resp.rows;
   } catch (err) {
     console.log('checkoutOrder: ' + err);
-    return 'err';
+    throw new Error('Server error');
+    
   }
 }
 

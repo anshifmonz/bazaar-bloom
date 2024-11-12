@@ -6,16 +6,11 @@ const getProducts = async (query, values) => {
     return resp.rows;
   } catch (err) {
     console.log('getProducts: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
-const addProduct = async (req) => {
-  const { name, description, price, stock, category, img_url } = req.body
-
-  const regex = /^\d+(\.\d+)?$/;
-  if (!regex.test(price) || !regex.test(stock)) return 'err1'
-  
+const addProduct = async (name, description, price, stock, category, img_url) => { 
   try {
     await db.query(
       'INSERT INTO products (name, description, price, stock_quantity, category, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
@@ -23,7 +18,7 @@ const addProduct = async (req) => {
     )
   } catch (err) {
     console.log('addProduct: ' + err)
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -32,16 +27,11 @@ const updateProduct = async (query, values) => {
     await db.query(query, values);
   } catch (err) {
     console.log('updateProduct');
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
 const delProduct = async (id) => {
-
-  if (Array.isArray(id) && id.length === 0) {
-    return
-  }
-
   let query = 'DELETE FROM products WHERE id IN (';
   let paramIndex = 1;
   let values = [];
@@ -65,7 +55,7 @@ const delProduct = async (id) => {
     await db.query(query, values)
     return
   } catch (err) {
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
