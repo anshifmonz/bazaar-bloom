@@ -7,10 +7,12 @@ const updateCart = async (req, res) => {
 
   if (!regex.test(productId) || !regex.test(quantity)) return res.status(400).json({ success: false, message: 'Invalid input' });
   
-  const resp = await updateCartQuantity(userId, productId, quantity);
-  if (resp === 'err') return res.status(500).json({ success: false, message: 'Server error' });
-
-  res.status(200).json({ success: true });
+  try {
+    await updateCartQuantity(userId, productId, quantity);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 }
 
 export default updateCart;

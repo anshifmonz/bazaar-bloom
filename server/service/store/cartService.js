@@ -22,7 +22,7 @@ const getCart = async (userId) => {
     return resp.rows;
   } catch (err) {
     console.log('getCart: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -41,7 +41,7 @@ const cartProductExistCheck = async (userId, productId) => {
 
   } catch (err) {
     console.log('cartProductExistCheck: ' + err);
-    return 'err';
+    throw new Error('Server error');
   }
 }
 
@@ -52,8 +52,8 @@ const addCartItem = async (userId, productId) => {
   try {
     await db.query(query, [userId, productId])
   } catch (err) {
-    if (err.message.includes('violates foreign key constraint')) return 'err1';
-    return 'err'
+    if (err.message.includes('violates foreign key constraint')) return 'not exist';
+    throw new Error('Server error');
   }
 }
 
@@ -70,7 +70,7 @@ const updateCartQuantity = async (userId, productId, quantity) => {
     await db.query(query, [ userId, productId, quantity ]);
   } catch (err) {
     console.log('updateCartQuantity: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
@@ -86,7 +86,7 @@ const delCartProduct = async (userId, productId) => {
     await db.query(query, [userId, productId]);
   } catch (err) {
     console.log('delCartProduct: ' + err);
-    return 'err'
+    throw new Error('Server error');
   }
 }
 
