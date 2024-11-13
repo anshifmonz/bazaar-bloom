@@ -1,19 +1,16 @@
-import bodyParser from 'body-parser';
 import express from 'express';
+import bodyParser from 'body-parser';
+import proxy from 'express-http-proxy';
 import 'dotenv/config';
 
-import sessionConfig from './config/sessionConfig.js';
-import passportConfig from './config/passportConfig.js';
 import Routes from './routes/routes.js';
 
 const app = express();
 const PORT = process.env.SERVER_PORT;
 
-app.use(sessionConfig);
-passportConfig(app);
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/api/auth', proxy('http://user-service:3001'))
 app.use('/', Routes);
 
 app.listen(PORT, (err) => {

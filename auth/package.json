@@ -1,0 +1,26 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.4.5",
+    "email-validator": "^2.0.4",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.13.1"
+  }
+}
