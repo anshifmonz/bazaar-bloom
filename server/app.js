@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/auth', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3002'));
+app.use('/api/product', proxy('http://product-service:3003'));
 app.use('/', Routes);
 
 app.listen(PORT, (err) => {

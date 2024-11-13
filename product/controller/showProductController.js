@@ -1,5 +1,5 @@
-import { getProducts } from "../../service/productService.js";
-import productFiler from "../../utils/productFilter.js";
+import { getProducts } from "../service/productService.js";
+import productFiler from "../utils/productFilter.js";
 
 const showProductController = async (req, res) => {
 

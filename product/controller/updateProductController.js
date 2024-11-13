@@ -1,5 +1,5 @@
-import { updateProduct } from "../../service/productService.js";
-import updateDataExtractor from "../../utils/productUpdateDataExtractor.js";
+import { updateProduct } from "../service/productService.js";
+import updateDataExtractor from "../utils/productUpdateDataExtractor.js";
 
 const updateProductController = async (req, res) => {
   const { productId, name, description, price, stock, category, img_url } = req.body

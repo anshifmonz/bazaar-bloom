@@ -1,4 +1,4 @@
-import { delProduct } from "../../service/productService.js";
+import { delProduct } from "../service/productService.js";
 
 const delProductController = async (req, res) => {
   const { productId } = req.body;

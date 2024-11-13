@@ -1,4 +1,4 @@
-import { addProduct } from "../../service/productService.js";
+import { addProduct } from "../service/productService.js";
 
 const addProductController = async (req, res) => {
   const { name, description, price, stock, category, img_url } = req.body

@@ -5,7 +5,6 @@ const getProducts = async (query, values) => {
     const resp = await db.query(query, values);
     return resp.rows;
   } catch (err) {
-    console.log('getProducts: ' + err);
     throw new Error('Server error');
   }
 }
@@ -17,7 +16,6 @@ const addProduct = async (name, description, price, stock, category, img_url) =>
       [name, description, price, stock, category, img_url]
     )
   } catch (err) {
-    console.log('addProduct: ' + err)
     throw new Error('Server error');
   }
 }
@@ -26,7 +24,6 @@ const updateProduct = async (query, values) => {
   try {
     await db.query(query, values);
   } catch (err) {
-    console.log('updateProduct');
     throw new Error('Server error');
   }
 }
