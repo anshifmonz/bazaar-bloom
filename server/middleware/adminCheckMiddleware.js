@@ -1,6 +1,3 @@
-import { db } from "../config/dbConfig.js";
-import { getUserById } from "../service/auth/userService.js";
-
 const adminCheck= async (req, res, next) => {
   const userId = req.user.id;
 
