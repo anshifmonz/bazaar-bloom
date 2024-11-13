@@ -1,11 +1,30 @@
-const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) return next();
-  res.status(302).json({ message: 'User not logged In' });
-}
+import axios from 'axios'
 
-const isNotAuthenticated = (req, res, next) => {
-  if (!req.isAuthenticated()) return next();
-  res.status(302).json({ message: 'User already logged In' });
-}
+const checkAuthStatus = async (req, res) => {
+  try {
+    const response = await axios.get('http://user-service:3001/validate-session', {
+      headers: { Cookie: req.headers.cookie },
+    });
 
-export { isAuthenticated, isNotAuthenticated };
+    if (response.data.isAuthenticated) {
+      req.user = response.data.user;
+      return true;
+    } else {
+      return false
+    }
+  } catch (error) {
+    throw new Error('Server error');
+  }
+};
+
+const isAuthenticated = async (req, res, next) => {
+  try {
+    const isLogged = await checkAuthStatus(req, res);
+    if (isLogged) return next()  
+    res.status(403).json({ message: 'User not logged In' });    
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' })
+  }  
+};
+
+export { isAuthenticated };
