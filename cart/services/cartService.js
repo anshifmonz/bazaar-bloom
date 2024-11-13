@@ -2,9 +2,11 @@ import { db } from '../config/dbConfig.js';
 
 const createCart = async (userId) => {
   try {
+    const checkIsExist = await db.query('SELECT * FROM cart WHERE user_id = $1', [userId]);
+    if (checkIsExist.rows.length > 0) return 'Cart already exist';
+
     await db.query('INSERT INTO cart (user_id) VALUES ($1)', [userId])
   } catch (err) {
-    console.log('createCart: ' + err);
     throw new Error('Server error');
   }
 }
@@ -90,4 +92,11 @@ const delCartProduct = async (userId, productId) => {
   }
 }
 
-export { createCart, getCart, cartProductExistCheck, addCartItem, updateCartQuantity, delCartProduct };
+export { 
+  createCart,
+  getCart,
+  cartProductExistCheck,
+  addCartItem,
+  updateCartQuantity,
+  delCartProduct 
+};

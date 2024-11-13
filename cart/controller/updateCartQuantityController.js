@@ -1,4 +1,4 @@
-import { updateCartQuantity } from "../../service/cartService.js";
+import { updateCartQuantity } from "../services/cartService.js";
 
 const updateCart = async (req, res) => {
   const userId = req.user.id;

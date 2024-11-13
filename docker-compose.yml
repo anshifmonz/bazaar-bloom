@@ -58,7 +58,6 @@ services:
       - PORT=${USER_SERVICE_PORT}
     depends_on:
       - userDb
-      - backend
     volumes:
       - ./auth:/app
     networks:
@@ -73,12 +72,54 @@ services:
       - POSTGRES_USER=${USER_DB_USER}
       - POSTGRES_PASSWORD=${USER_DB_PASSWORD}
       - POSTGRES_DB=${USER_DB_NAME}
+    depends_on:
+      - backend
     volumes:
       - user_service:/var/lib/postgresql/data
     networks:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER} -d ${USER_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  cart-service:
+    build:
+      context: ./cart
+    image: cart-service
+    container_name: cart-service
+    expose:
+      - "${CART_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_URL=${CART_SERVICE_DB}
+      - PORT=${CART_SERVICE_PORT}
+    depends_on:
+      - cartDb
+    volumes:
+      - ./cart:/app
+    networks:
+      - backend
+
+  cartDb:
+    image: postgres
+    container_name: cartDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${CART_DB_USER}
+      - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
+      - POSTGRES_DB=${CART_DB_NAME}
+    depends_on:
+      - backend
+    volumes:
+      - cart_service:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -92,4 +133,6 @@ volumes:
   ecommerce_db_data:
     driver: local
   user_service:
+    driver: local
+  cart_service:
     driver: local

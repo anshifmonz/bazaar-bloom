@@ -1,4 +1,4 @@
-import { getCart } from '../../service/cartService.js'
+import { getCart } from '../services/cartService.js'
 
 const showCartController = async (req, res) => {
   const userId = req.user.id;
