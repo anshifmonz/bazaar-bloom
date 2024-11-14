@@ -1,10 +1,3 @@
-CREATE TABLE favorites (
-  id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
-  product_id INT REFERENCES products(id) NOT NULL,
-  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id),

@@ -1,5 +1,5 @@
 import { db } from "../config/dbConfig.js"
-import { getProducts } from "./productService.js";
+// import { getProducts } from "./productService.js";
 
 const showOrder = async (userId) => {
   try {
@@ -41,33 +41,33 @@ const showAOrderDetails = async (userId, orderId) => {
 }
 
 // order from the product page
-const orderProduct = async (userId, productId, quantity) => {
-  try {
-    const product = await getProducts('SELECT price, stock_quantity FROM products WHERE id = $1', [productId]);
+// const orderProduct = async (userId, productId, quantity) => {
+//   try {
+//     // const product = await getProducts('SELECT price, stock_quantity FROM products WHERE id = $1', [productId]);
     
-    if (product[0].stock_quantity < quantity) return 'Not enough stock available';
+//     if (product[0].stock_quantity < quantity) return 'Not enough stock available';
 
-    const orderResp = await db.query(
-      'INSERT INTO orders (user_id, total_price) VALUES ($1, $2) RETURNING id', [userId, product[0].price * quantity]
-    );
+//     const orderResp = await db.query(
+//       'INSERT INTO orders (user_id, total_price) VALUES ($1, $2) RETURNING id', [userId, product[0].price * quantity]
+//     );
     
-    await db.query(
-      'INSERT INTO order_items \
-      (order_id, product_id, quantity, price_at_purchase)\
-      VALUES ($1, $2, $3, $4)',
-      [ orderResp.rows[0].id, productId, quantity, product[0].price]
-    );
+//     await db.query(
+//       'INSERT INTO order_items \
+//       (order_id, product_id, quantity, price_at_purchase)\
+//       VALUES ($1, $2, $3, $4)',
+//       [ orderResp.rows[0].id, productId, quantity, product[0].price]
+//     );
 
-    await db.query(
-      'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2',
-      [quantity, productId]
-    );
+//     await db.query(
+//       'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2',
+//       [quantity, productId]
+//     );
 
-  } catch (err) {
-    console.log('orderProduct: ' + err);
-    throw new Error('Server error');
-  }
-}
+//   } catch (err) {
+//     console.log('orderProduct: ' + err);
+//     throw new Error('Server error');
+//   }
+// }
 
 // order from the cart page
 const orderCart = async (userId) => {
@@ -140,4 +140,4 @@ const cancelOrder = async (userId, orderId) => {
   }
 }
 
-export { showOrder, showAOrderDetails, orderProduct, orderCart, cancelOrder };
+export { showOrder, showAOrderDetails, orderCart, cancelOrder };

@@ -1,0 +1,6 @@
+CREATE TABLE favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

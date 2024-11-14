@@ -165,6 +165,46 @@ services:
       retries: 5
       start_period: 30s
 
+  favorite-service:
+    build:
+      context: ./favorite
+    image: favorite-service
+    container_name: favorite-service
+    expose:
+      - "${FAVORITE_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_URL=${FAVORITE_SERVICE_DB}
+      - PORT=${FAVORITE_SERVICE_PORT}
+    depends_on:
+      - favoriteDb
+    volumes:
+      - ./favorite:/app
+    networks:
+      - backend
+
+  favoriteDb:
+    image: postgres
+    container_name: favoriteDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${FAVORITE_DB_USER}
+      - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
+      - POSTGRES_DB=${FAVORITE_DB_NAME}
+    depends_on:
+      - backend
+    volumes:
+      - favorite_service:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
 networks:
   backend:
     driver: bridge
@@ -177,4 +217,6 @@ volumes:
   cart_service:
     driver: local
   product_service:
+    driver: local
+  favorite_service:
     driver: local

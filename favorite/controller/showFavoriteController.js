@@ -1,4 +1,4 @@
-import { getFavProducts } from "../../service/favoriteService.js";
+import { getFavProducts } from "..//service/favoriteService.js";
 
 const showFavoriteController = async (req, res) => {
   const userId = req.user.id;
