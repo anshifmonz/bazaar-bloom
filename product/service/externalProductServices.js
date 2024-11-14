@@ -27,4 +27,18 @@ const isProductExist = async (productId) => {
   }
 }
 
-export { getProduct, isProductExist };
+const getFavProducts = async (productId) => {
+  const query =
+  `SELECT name, price, image_url
+  FROM products
+  WHERE id = $1`
+
+  try {
+    const resp = await db.query(query, [productId]);
+    return resp.rows[0];
+  } catch (err) {    
+    throw new Error('Server error');
+  }
+}
+
+export { getProduct, isProductExist, getFavProducts };
