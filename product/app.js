@@ -13,5 +13,5 @@ app.use('/', Routes);
 
 app.listen(PORT, (err) => {
   if (err) throw err;
-  console.log('cart service running on http://localhost:' + PORT);
+  console.log('product service running on http://localhost:' + PORT);
 });
