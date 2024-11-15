@@ -245,6 +245,23 @@ services:
       retries: 5
       start_period: 30s
 
+  checkout-service:
+    build:
+      context: ./checkout
+    image: checkout-service
+    container_name: checkout-service
+    expose:
+      - "${CHECKOUT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${CHECKOUT_SERVICE_PORT}
+    depends_on:
+      - backend
+    volumes:
+      - ./checkout:/app
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
