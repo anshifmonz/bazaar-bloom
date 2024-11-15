@@ -1,48 +1,24 @@
 services:
-  backend:
+  server:
     build:
       context: ./server
-    image: e-commerce-server
-    container_name: e-commerce-server
+    image: server
+    container_name: server
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
       - NODE_ENV=${NODE_ENV}
-      - DB_URL=${DB_URL}
-      - SESSION_SECRET=${SESSION_SECRET}
       - PORT=${SERVER_PORT}
     depends_on:
-      - postgresDb
+      - user-service
+      - cart-service
+      - product-service
+      - favorite-service
+      - order-service
     volumes:
       - ./server:/app
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/health"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-
-  postgresDb:
-    image: postgres
-    container_name: e-commerce-postgres
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    volumes:
-      - ecommerce_db_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
 
   user-service:
     build:
@@ -72,8 +48,6 @@ services:
       - POSTGRES_USER=${USER_DB_USER}
       - POSTGRES_PASSWORD=${USER_DB_PASSWORD}
       - POSTGRES_DB=${USER_DB_NAME}
-    depends_on:
-      - backend
     volumes:
       - user_service:/var/lib/postgresql/data
     networks:
@@ -112,8 +86,6 @@ services:
       - POSTGRES_USER=${CART_DB_USER}
       - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
       - POSTGRES_DB=${CART_DB_NAME}
-    depends_on:
-      - backend
     volumes:
       - cart_service:/var/lib/postgresql/data
     networks:
@@ -152,8 +124,6 @@ services:
       - POSTGRES_USER=${PRODUCT_DB_USER}
       - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
       - POSTGRES_DB=${PRODUCT_DB_NAME}
-    depends_on:
-      - backend
     volumes:
       - product_service:/var/lib/postgresql/data
     networks:
@@ -192,8 +162,6 @@ services:
       - POSTGRES_USER=${FAVORITE_DB_USER}
       - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
       - POSTGRES_DB=${FAVORITE_DB_NAME}
-    depends_on:
-      - backend
     volumes:
       - favorite_service:/var/lib/postgresql/data
     networks:
@@ -232,8 +200,6 @@ services:
       - POSTGRES_USER=${ORDER_DB_USER}
       - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
       - POSTGRES_DB=${ORDER_DB_NAME}
-    depends_on:
-      - backend
     volumes:
       - order_service:/var/lib/postgresql/data
     networks:
@@ -255,8 +221,6 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - PORT=${CHECKOUT_SERVICE_PORT}
-    depends_on:
-      - backend
     volumes:
       - ./checkout:/app
     networks:
@@ -267,8 +231,6 @@ networks:
     driver: bridge
 
 volumes:
-  ecommerce_db_data:
-    driver: local
   user_service:
     driver: local
   cart_service:
