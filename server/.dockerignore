@@ -1,5 +1,0 @@
-node_modules
-.history
-.env
-.env.example
-db.sql

@@ -1,12 +1,9 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import proxy from 'express-http-proxy';
 import 'dotenv/config';
 
 const app = express();
-const PORT = process.env.SERVER_PORT;
-
-app.use(bodyParser.urlencoded({ extended: true }));
+const PORT = process.env.PORT;
 
 app.use('/api/auth', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3002'));
