@@ -11,6 +11,8 @@ import delProduct from '../controller/delProductController.js';
 import getCartProductController from "../controller/external/getCartProductController.js";
 import productExistCheckController from "../controller/external/productExistCheckController.js";
 import getFavProductController from "../controller/external/getFavProductController.js";
+import getOrderProductController from "../controller/external/getOrderProductController.js";
+import updateProductStockController from "../controller/external/updateProductStockController.js";
 
 const router = express.Router();
 
@@ -22,5 +24,7 @@ router.delete('/', isAuthenticated, adminCheck, delProduct);
 router.get('/cart-product/:productId', getCartProductController);
 router.get('/product-exist-check/:productId',productExistCheckController);
 router.get('/favorite-product/:productId', getFavProductController);
+router.get('/order-product/:productId', getOrderProductController);
+router.post('/update-stock/', updateProductStockController);
 
 export default router;
