@@ -14,6 +14,7 @@ app.use('/api/auth', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3002'));
 app.use('/api/product', proxy('http://product-service:3003'));
 app.use('/api/favorite', proxy('http://favorite-service:3003'));
+app.use('/api/order', proxy('http://order-service:3005'));
 app.use('/', Routes);
 
 app.listen(PORT, (err) => {

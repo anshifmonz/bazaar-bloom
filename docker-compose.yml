@@ -205,6 +205,46 @@ services:
       retries: 5
       start_period: 30s
 
+  order-service:
+    build:
+      context: ./order
+    image: order-service
+    container_name: order-service
+    expose:
+      - "${ORDER_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_URL=${ORDER_SERVICE_DB}
+      - PORT=${ORDER_SERVICE_PORT}
+    depends_on:
+      - orderDb
+    volumes:
+      - ./order:/app
+    networks:
+      - backend
+
+  orderDb:
+    image: postgres
+    container_name: orderDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+      - POSTGRES_DB=${ORDER_DB_NAME}
+    depends_on:
+      - backend
+    volumes:
+      - order_service:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
 networks:
   backend:
     driver: bridge
@@ -219,4 +259,6 @@ volumes:
   product_service:
     driver: local
   favorite_service:
+    driver: local
+  order_service:
     driver: local

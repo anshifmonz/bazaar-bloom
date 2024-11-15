@@ -1,4 +1,4 @@
-import { showAOrderDetails } from "../../service/orderService.js";
+import { showAOrderDetails } from "../service/orderService.js";
 
 const showAOrderDetailsController = async (req, res) => {
   const userId = req.user.id;

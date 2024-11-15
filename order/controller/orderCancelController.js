@@ -1,4 +1,4 @@
-import { cancelOrder } from "../../service/orderService.js";
+import { cancelOrder } from "../service/orderService.js";
 
 const orderCancelController = async (req, res) => {
   const userId = req.user.id;

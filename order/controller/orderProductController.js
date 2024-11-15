@@ -1,4 +1,4 @@
-// import { orderProduct } from "../../service/orderService.js";
+import { orderProduct } from "../service/orderService.js";
 
 const orderProductController = async (req, res) => {
   const userId = req.user.id;
@@ -13,6 +13,8 @@ const orderProductController = async (req, res) => {
   
     res.status(201).json({ success: true });
   } catch (err) {
+    console.log(err);
+    
     res.status(500).json({ success: false, message: 'Server error' });
   }
 }
