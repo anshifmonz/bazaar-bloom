@@ -8,6 +8,9 @@ import updateCartQuantity from '../controller/updateCartQuantityController.js';
 import delCartProduct from '../controller/delCartProductController.js';
 import createCartController from "../controller/createCartController.js";
 
+import getCartDetailsController from "../controller/external/getCartDetailsController.js";
+import removeCartItemController from "../controller/external/removeCartItemController.js";
+
 const router = express.Router();
 
 router.get('/', isAuthenticated, showCart);
@@ -16,5 +19,7 @@ router.put('/', isAuthenticated, updateCartQuantity);
 router.delete('/', isAuthenticated, delCartProduct);
 
 router.post('/create-cart', createCartController);
+router.get('/get-cart/:userId', getCartDetailsController);
+router.post('/remove-cart-item/', removeCartItemController);
 
 export default router;
