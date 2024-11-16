@@ -2,27 +2,46 @@
 
 This is a scalable, microservice-based backend for an e-commerce platform, powered by **PostgreSQL** as the database. It includes essential services like user authentication, product management, shopping cart, favorites, orders, and checkout. The microservice architecture ensures each feature is modular and can be easily updated or scaled as the business grows. This design allows for smooth integration, flexibility, and easy maintenance in the long run.
 
-# Installation Guide
+## **Installation Guide**
 To set up and run this e-commerce backend locally, follow the steps below:
 
-### Prerequisites
 Make sure you have Docker installed on your system.
 
-### Clone the Repository
-Clone the repository to your local machine:
+### Prerequisites
+- Make sure you have Docker installed on your system.
+- Make sure you have npm installed if you're working with development.
+
+### For Production (or testing)  
+
+Execute the following commands in your terminal  
+
 ```bash
 git clone https://github.com/anshifmonz/bazaar-bloom.git
 cd bazaar-bloom
-```
-
-### Execute Commands
-Execute the following command on Terminal
-```bash
 mv .env.example .env
 docker-compose up
+```  
+
+### For Development  
+Execute the following command in your terminal
+```bash
+git clone https://github.com/anshifmonz/bazaar-bloom.git
+cd bazaar-bloom
+mv .env.example .env
+
+# Install dependencies for each service
+dirs=('auth' 'cart' 'checkout' 'favorite' 'order' 'product' 'server')
+for dir in "${dirs[@]}"; do
+  if [ -d "$dir" ]; then
+    echo "Installing dependencies in $dir"
+    cd $dir && npm install && cd ..
+  fi
+done
+
+docker-compose -f docker-compose.dev.yml up
 ```
 
-This will launch the server on http://localhost:9999.
+Once the server is up, you can access it at http://localhost:3000.
 
 ## **API Gateway**
 `GET /api/<service>`  
