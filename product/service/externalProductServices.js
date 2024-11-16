@@ -43,7 +43,7 @@ const getFavProducts = async (productId) => {
 
 const getOrderProduct = async (productId) => {
   const query =
-  `SELECT name, image_url, price, stock_quantity
+  `SELECT name, image_url
   FROM products
   WHERE id =$1`
 
