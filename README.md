@@ -5,13 +5,11 @@ This is a scalable, microservice-based backend for an e-commerce platform, power
 ## **Installation Guide**
 To set up and run this e-commerce backend locally, follow the steps below:
 
-Make sure you have Docker installed on your system.
-
 ### Prerequisites
-- Make sure you have Docker installed on your system.
-- Make sure you have npm installed if you're working with development.
+- Docker: Make sure Docker is installed on your system.
+- npm: If you're working in a development environment, ensure you have npm installed.
 
-### For Production (or testing)  
+### For Production  
 
 Execute the following commands in your terminal  
 
@@ -20,6 +18,19 @@ git clone https://github.com/anshifmonz/bazaar-bloom.git
 cd bazaar-bloom
 mv .env.example .env
 docker-compose up
+```  
+
+**Note**: Update the .env file to set appropriate values for sensitive information such as DB credentials, Session Secret, etc.
+
+### For Testing
+
+Execute the following commands in your terminal  
+
+```bash
+git clone https://github.com/anshifmonz/bazaar-bloom.git
+cd bazaar-bloom
+mv .env.example .env
+docker-compose -f docker-compose.test.yml up
 ```  
 
 ### For Development  
