@@ -50,6 +50,7 @@ services:
       - POSTGRES_DB=${USER_DB_NAME}
     volumes:
       - user_service:/var/lib/postgresql/data
+      - ./auth/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     healthcheck:
@@ -88,6 +89,7 @@ services:
       - POSTGRES_DB=${CART_DB_NAME}
     volumes:
       - cart_service:/var/lib/postgresql/data
+      - ./cart/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     healthcheck:
@@ -126,6 +128,7 @@ services:
       - POSTGRES_DB=${PRODUCT_DB_NAME}
     volumes:
       - product_service:/var/lib/postgresql/data
+      - ./product/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     healthcheck:
@@ -164,6 +167,7 @@ services:
       - POSTGRES_DB=${FAVORITE_DB_NAME}
     volumes:
       - favorite_service:/var/lib/postgresql/data
+      - ./favorite/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     healthcheck:
@@ -202,6 +206,7 @@ services:
       - POSTGRES_DB=${ORDER_DB_NAME}
     volumes:
       - order_service:/var/lib/postgresql/data
+      - ./order/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     healthcheck:
