@@ -6,6 +6,7 @@ const showAOrderDetailsController = async (req, res) => {
 
   try {
     const resp = await showAOrderDetails(userId, orderId);
+    if (resp === 'Order not found') return res.status(404).json({ success: false, data: resp });
     res.status(200).json({ success: true, data: resp });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });

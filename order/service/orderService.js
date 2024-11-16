@@ -44,6 +44,7 @@ const showAOrderDetails = async (userId, orderId) => {
 
   try {
     const resp = await db.query(query, [userId, orderId]);
+    if (resp.rows === 0) return 'Order not found'
     const orderDetail = resp.rows[0];
 
     const { data } = await axios.get(`http://product-service:3003/order-product/${orderDetail.product_id}`);
