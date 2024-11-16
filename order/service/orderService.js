@@ -21,6 +21,8 @@ const showOrders = async (userId) => {
           id: item.order_id,
           product_id: item.product_id,
           ...data,
+          quantity: item.quantity,
+          price_at_purchase: item.price_at_purchase,
           status: item.status
         }
       })
