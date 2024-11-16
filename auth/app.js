@@ -6,7 +6,7 @@ import passportConfig from './config/passportConfig.js';
 import Routes from './routes/routes.js';
 
 const app = express();
-const PORT = process.env.AUTH_PORT;
+const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
