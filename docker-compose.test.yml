@@ -1,0 +1,234 @@
+services:
+  server:
+    build:
+      context: ./server
+    image: server
+    container_name: server
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      - NODE_ENV=test
+      - PORT=${SERVER_PORT}
+    depends_on:
+      - user-service
+      - cart-service
+      - product-service
+      - favorite-service
+      - order-service
+    networks:
+      - backend
+
+  user-service:
+    build:
+      context: ./auth
+    image: user-service
+    container_name: user-service
+    expose:
+      - "${USER_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - DB_URL=${USER_SERVICE_DB}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - PORT=${USER_SERVICE_PORT}
+    depends_on:
+      - userDb
+    networks:
+      - backend
+
+  userDb:
+    image: postgres
+    container_name: userDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${USER_DB_USER}
+      - POSTGRES_PASSWORD=${USER_DB_PASSWORD}
+      - POSTGRES_DB=${USER_DB_NAME}
+    volumes:
+      - user_service:/var/lib/postgresql/data
+      - ./auth/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER} -d ${USER_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  cart-service:
+    build:
+      context: ./cart
+    image: cart-service
+    container_name: cart-service
+    expose:
+      - "${CART_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - DB_URL=${CART_SERVICE_DB}
+      - PORT=${CART_SERVICE_PORT}
+    depends_on:
+      - cartDb
+    networks:
+      - backend
+
+  cartDb:
+    image: postgres
+    container_name: cartDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${CART_DB_USER}
+      - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
+      - POSTGRES_DB=${CART_DB_NAME}
+    volumes:
+      - cart_service:/var/lib/postgresql/data
+      - ./cart/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  product-service:
+    build:
+      context: ./product
+    image: product-service
+    container_name: product-service
+    expose:
+      - "${PRODUCT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - DB_URL=${PRODUCT_SERVICE_DB}
+      - PORT=${PRODUCT_SERVICE_PORT}
+    depends_on:
+      - productDb
+    networks:
+      - backend
+
+  productDb:
+    image: postgres
+    container_name: productDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${PRODUCT_DB_USER}
+      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - POSTGRES_DB=${PRODUCT_DB_NAME}
+    volumes:
+      - product_service:/var/lib/postgresql/data
+      - ./product/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  favorite-service:
+    build:
+      context: ./favorite
+    image: favorite-service
+    container_name: favorite-service
+    expose:
+      - "${FAVORITE_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - DB_URL=${FAVORITE_SERVICE_DB}
+      - PORT=${FAVORITE_SERVICE_PORT}
+    depends_on:
+      - favoriteDb
+    networks:
+      - backend
+
+  favoriteDb:
+    image: postgres
+    container_name: favoriteDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${FAVORITE_DB_USER}
+      - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
+      - POSTGRES_DB=${FAVORITE_DB_NAME}
+    volumes:
+      - favorite_service:/var/lib/postgresql/data
+      - ./favorite/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  order-service:
+    build:
+      context: ./order
+    image: order-service
+    container_name: order-service
+    expose:
+      - "${ORDER_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - DB_URL=${ORDER_SERVICE_DB}
+      - PORT=${ORDER_SERVICE_PORT}
+    depends_on:
+      - orderDb
+    networks:
+      - backend
+
+  orderDb:
+    image: postgres
+    container_name: orderDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+      - POSTGRES_DB=${ORDER_DB_NAME}
+    volumes:
+      - order_service:/var/lib/postgresql/data
+      - ./order/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  checkout-service:
+    build:
+      context: ./checkout
+    image: checkout-service
+    container_name: checkout-service
+    expose:
+      - "${CHECKOUT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - PORT=${CHECKOUT_SERVICE_PORT}
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  user_service:
+    driver: local
+  cart_service:
+    driver: local
+  product_service:
+    driver: local
+  favorite_service:
+    driver: local
+  order_service:
+    driver: local
