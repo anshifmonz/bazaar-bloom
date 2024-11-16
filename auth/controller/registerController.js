@@ -7,7 +7,7 @@ const createCart = async (userId) => {
   const retries = 3;
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const cartResponse = await axios.post('http://cart-service:3002/create-cart', { userId });
+      const cartResponse = await axios.post('http://cart-service:3001/create-cart', { userId });
       if (cartResponse.status === 201) break
     } catch (error) {
       if (attempt === retries) break

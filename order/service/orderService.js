@@ -16,7 +16,7 @@ const showOrders = async (userId) => {
     
     const orderDetails = await Promise.all(
       orderItems.rows.map(async (item) => {        
-        const { data } = await axios.get(`http://product-service:3003/order-product/${item.product_id}`);
+        const { data } = await axios.get(`http://product-service:3001/order-product/${item.product_id}`);
         return {
           id: item.order_id,
           product_id: item.product_id,
@@ -47,7 +47,7 @@ const showAOrderDetails = async (userId, orderId) => {
     if (resp.rows.length === 0) return 'Order not found'
     const orderDetail = resp.rows[0];
 
-    const { data } = await axios.get(`http://product-service:3003/order-product/${orderDetail.product_id}`);
+    const { data } = await axios.get(`http://product-service:3001/order-product/${orderDetail.product_id}`);
     const { name, image_url } = data;
 
     const combinedResult = {
@@ -69,7 +69,7 @@ const orderProduct = async (userId, productId, quantity) => {
   try {
     await client.query('BEGIN');
 
-    const { data } = await axios.get(`http://product-service:3003/order-product/${productId}`);
+    const { data } = await axios.get(`http://product-service:3001/order-product/${productId}`);
     const { price, stock_quantity } = data;        
     
     if (stock_quantity < quantity) {
@@ -94,7 +94,7 @@ const orderProduct = async (userId, productId, quantity) => {
     const retries = 3;
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const { status } = await axios.post(`http://product-service:3003/update-stock/`, {
+        const { status } = await axios.post(`http://product-service:3001/update-stock/`, {
           productId,
           quantity
         });        
@@ -123,13 +123,13 @@ const orderCart = async (userId) => {
   try {
 
     // collecting items from user's cart
-    const { data: cartData } = await axios.get(`http://cart-service:3002/get-cart/${userId}`);
+    const { data: cartData } = await axios.get(`http://cart-service:3001/get-cart/${userId}`);
     if (!cartData || cartData.length === 0) return 'Cart is empty';
     
     // fetch product details and assemble cart items with price and stock details
     const cartItems = await Promise.all(
       cartData.map(async item => {
-        const { data: productData  } = await axios.get(`http://product-service:3003/order-product/${item.product_id}`);
+        const { data: productData  } = await axios.get(`http://product-service:3001/order-product/${item.product_id}`);
         const { price, stock_quantity } = productData;
 
         return {
@@ -172,7 +172,7 @@ const orderCart = async (userId) => {
       );
       
       // decrease the stock_quantity of purchased products
-      const { status } = await axios.post(`http://product-service:3003/update-stock/`, {
+      const { status } = await axios.post(`http://product-service:3001/update-stock/`, {
         productId: item.product_id,
         quantity: item.quantity
       });
@@ -180,7 +180,7 @@ const orderCart = async (userId) => {
     }
 
     // removing items from cart after successful order
-    const { status } = await axios.post(`http://cart-service:3002/remove-cart-item/`, {
+    const { status } = await axios.post(`http://cart-service:3001/remove-cart-item/`, {
       userId
     });
     if (status !== 200) throw new Error('Server error');

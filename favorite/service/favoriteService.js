@@ -11,7 +11,7 @@ const getFavProducts = async (userId) => {
     const FavItems = await db.query(query, [userId]);    
     const productDetails = await Promise.all(
       FavItems.rows.map(async (item) => {        
-        const { data } = await axios.get(`http://product-service:3003/favorite-product/${item.product_id}`);        
+        const { data } = await axios.get(`http://product-service:3001/favorite-product/${item.product_id}`);        
         return {
           id: item.id,
           ...data,

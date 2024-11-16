@@ -5,7 +5,7 @@ import { addCartItem, cartProductExistCheck } from "../services/cartService.js";
 const productExistCheck = async (productId) => {
   try {
     
-    const resp = await axios.get(`http://product-service:3003/product-exist-check/${productId}`);
+    const resp = await axios.get(`http://product-service:3001/product-exist-check/${productId}`);
     
     if (resp.status === 404) return false
     return true

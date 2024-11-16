@@ -23,7 +23,7 @@ const getCart = async (userId) => {
     
     const productDetails = await Promise.all(
       cartItems.rows.map(async (item) => {        
-        const { data } = await axios.get(`http://product-service:3003/cart-product/${item.product_id}`);        
+        const { data } = await axios.get(`http://product-service:3001/cart-product/${item.product_id}`);        
         return {
           id: item.id,
           ...data,
