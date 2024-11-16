@@ -9,6 +9,7 @@ const orderProductController = async (req, res) => {
 
   try {
     const resp = await orderProduct(userId, productId, quantity);
+    if (resp === 'Product not found') return res.status(404).json({ success: false, message: resp })
     if (resp === 'Not enough stock available') return res.status(409).json({ success: false, message: resp })
   
     res.status(201).json({ success: true });

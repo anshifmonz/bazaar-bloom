@@ -70,7 +70,9 @@ const orderProduct = async (userId, productId, quantity) => {
     await client.query('BEGIN');
 
     const { data } = await axios.get(`http://product-service:3001/order-product/${productId}`);
-    const { price, stock_quantity } = data;        
+    if (!data) return 'Product not found';
+    
+    const { price, stock_quantity } = data;
     
     if (stock_quantity < quantity) {
       await client.query('ROLLBACK');
