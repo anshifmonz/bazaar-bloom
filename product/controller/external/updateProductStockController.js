@@ -1,10 +1,10 @@
 import { updateProductStock } from "../../service/externalProductServices.js";
 
 const updateProductStockController = async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { stockUpdateData } = req.body;
 
   try {
-    await updateProductStock(productId, quantity);
+    await updateProductStock(stockUpdateData);
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });

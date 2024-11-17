@@ -2,7 +2,7 @@ import { db } from "../config/dbConfig.js";
 
 const getCartProducts = async (productIds) => {
   const query = 
-    `SELECT id, name, price, image_url
+    `SELECT id, name, price, image_url, stock_quantity
     FROM products
     WHERE id = ANY($1::int[])`;
 
@@ -55,15 +55,53 @@ const getOrderProduct = async (productId) => {
   }
 }
 
-const updateProductStock = async (productId, quantity) => {
-  const query = `UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2`
+const updateProductStock = async (stockUpdateData) => {
+  const client = await db.connect();
+
+  let failedUpdates = [];
+  let retries = 3;
+
+  const performUpdate = async (data) => {
+    const query = `UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2`;
+    return client.query(query, [data.quantity, data.product_id]);
+  };
+
+  const queries = stockUpdateData.map(async (data) => {
+    try {
+      await performUpdate(data);
+    } catch (err) {
+      failedUpdates.push(data);
+    }
+  });
 
   try {
-    await db.query(query, [quantity, productId]);
+    await client.query('BEGIN');
+    await Promise.all(queries);
+
+    while (failedUpdates.length > 0 && retries > 0) {
+      const retryQueries = failedUpdates.map(async (data) => {
+        try {
+          await performUpdate(data);
+        } catch (err) {
+          failedUpdates.push(data);
+        }
+      });
+      await Promise.all(retryQueries);
+      retries--;
+    }
+
+    if (failedUpdates.length > 0) {
+      throw new Error('Some stock updates failed after retries');
+    }
+
+    await client.query('COMMIT');
   } catch (err) {
-    throw new Error('Server error');
+    await client.query('ROLLBACK');
+    throw new Error('Server error during product stock update');
+  } finally {
+    client.release();
   }
-}
+};
 
 export { 
   getCartProducts,
