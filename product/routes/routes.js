@@ -21,10 +21,12 @@ router.post('/', isAuthenticated, adminCheck, addProduct);
 router.put('/', isAuthenticated, adminCheck, updateProduct);
 router.delete('/', isAuthenticated, adminCheck, delProduct);
 
-router.get('/cart-product/:productId', getCartProductController);
+router.post('/cart-products/', getCartProductController);
 router.get('/product-exist-check/:productId',productExistCheckController);
 router.get('/favorite-product/:productId', getFavProductController);
 router.get('/order-product/:productId', getOrderProductController);
 router.post('/update-stock/', updateProductStockController);
+
+router.all('*', (req, res) => res.status(404).send('Invalid path'))
 
 export default router;

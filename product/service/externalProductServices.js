@@ -1,14 +1,14 @@
 import { db } from "../config/dbConfig.js";
 
-const getProduct = async (productId) => {
-  const query =
-  `SELECT name, price
-  FROM products
-  WHERE id = $1`
+const getCartProducts = async (productIds) => {
+  const query = 
+    `SELECT id, name, price, image_url
+    FROM products
+    WHERE id = ANY($1::int[])`;
 
   try {
-    const resp = await db.query(query, [productId]);    
-    return resp.rows[0];
+    const resp = await db.query(query, [productIds]);    
+    return resp.rows;
   } catch (err) {    
     throw new Error('Server error');  
   }
@@ -66,7 +66,7 @@ const updateProductStock = async (productId, quantity) => {
 }
 
 export { 
-  getProduct,
+  getCartProducts,
   isProductExist,
   getFavProducts,
   getOrderProduct,
