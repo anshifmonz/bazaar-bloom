@@ -19,20 +19,28 @@ const getCart = async (userId) => {
   WHERE cart_id = (SELECT id FROM cart WHERE user_id = $1)`
   
   try {
-    const cartItems = await db.query(query, [userId]);
+    const cartData = await db.query(query, [userId]);
+    if (!cartData || cartData.length === 0) return 'Cart is empty';
     
-    const productDetails = await Promise.all(
-      cartItems.rows.map(async (item) => {        
-        const { data } = await axios.get(`http://product-service:3001/cart-product/${item.product_id}`);        
-        return {
-          id: item.id,
-          ...data,
-          quantity: item.quantity
-        }
-      })
-    )
+    const productIds = cartData.rows.map(item => item.product_id);
+    const { data: products } = await axios.post(`http://product-service:3001/cart-products/`, {
+      productIds
+    });
 
-    return productDetails;
+    const cartItems = cartData.rows.map(item => {
+      const product = products.find(p => p.id === item.product_id);
+      return {
+        cart_id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        name: product.name,
+        price: product.price,
+        image: product.image_url,
+        stock_quantity: product.stock_quantity
+      };
+    });
+
+    return cartItems;
   } catch (err) {
     throw new Error('Server error');
   }
