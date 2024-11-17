@@ -2,6 +2,8 @@
 
 This is a scalable, microservice-based backend for an e-commerce platform, powered by **PostgreSQL** as the database. It includes essential services like user authentication, product management, shopping cart, favorites, orders, and checkout. The microservice architecture ensures each feature is modular and can be easily updated or scaled as the business grows. This design allows for smooth integration, flexibility, and easy maintenance in the long run.
 
+<br><br>
+
 ## **Installation Guide**
 To set up and run this e-commerce backend locally, follow the steps below:
 
@@ -54,6 +56,8 @@ docker-compose -f docker-compose.dev.yml up
 
 Once the server is up, you can access it at http://localhost:3000.
 
+<br><br>
+
 ## **API Gateway**
 `GET /api/<service>`  
 
@@ -100,6 +104,8 @@ curl -X GET "http://localhost:9999/api/cart/someCartEndpoint" \
 - [Favorite API](#favorite-api)  
 - [Order API](#order-api)  
 - [Checkout API](#checkout-api)  
+
+<br><br>
 
 ## **Authentication API**
 
@@ -153,7 +159,7 @@ Register a new user.
 
 **cURL Command:**
 ```bash
-curl -X POST https://example.com/api/auth/signUp \
+curl -X POST http://localhost:3000/api/auth/signUp \
 -H "Content-Type: application/json" \
 -d '{
   "name": "johndoe",
@@ -221,7 +227,7 @@ Login a user.
 
 **cURL Command:**
 ```bash
-curl -X POST https://example.com/api/auth/logIn \
+curl -X POST http://localhost:3000/api/auth/logIn \
 -H "Content-Type: application/json" \
 -d '{
   "email": "johndoe@example.com",
@@ -276,8 +282,9 @@ No additional query or body parameters are required.
 
 **cURL Command:**
 ```bash
-curl -X POST https://example.com/api/auth/logOut \
--H "Content-Type: application/json"
+curl -X POST http://localhost:3000/api/auth/logOut \
+-H "Content-Type: application/json" \
+-H "Cookie: connect.sid=<your-session-id>"
 ```
 ---
 
@@ -421,13 +428,14 @@ This endpoint allows you to add a new product to the database. It validates the 
 ```bash
 curl -X POST "http://localhost:3000/api/products" \
 -H "Content-Type: application/json" \
+-H "Cookie: connect.sid=<your-session-id>" \
 -d '{
   "name": "Laptop",
   "description": "A high-performance laptop for professionals.",
   "price": 1500.99,
   "stock": 10,
   "category": "Electronics",
-  "img_url": "http://example.com/images/laptop.jpg"
+  "img_url": "http://localhost:3000/images/laptop.jpg"
 }'
 ```  
 
@@ -498,6 +506,7 @@ This endpoint allows you to update the details of an existing product in the dat
 ```bash
 curl -X PUT "http://localhost:3000/api/product" \
 -H "Content-Type: application/json" \
+-H "Cookie: connect.sid=<your-session-id>" \
 -d '{
   "productId": "12345",
   "name": "Updated Name",
@@ -505,7 +514,7 @@ curl -X PUT "http://localhost:3000/api/product" \
   "price": 1600.99,
   "stock": 15,
   "category": "Electronics",
-  "img_url": "http://example.com/images/updated-product.jpg"
+  "img_url": "http://localhost:3000/images/updated-product.jpg"
 }'
 ```  
 
@@ -570,6 +579,7 @@ This endpoint allows you to delete one or more products from the database by spe
 ```bash
 curl -X DELETE "http://localhost:3000/api/products" \
 -H "Content-Type: application/json" \
+-H "Cookie: connect.sid=<your-session-id>" \
 -d '{
   "productId": "12345,67890"
 }'
@@ -928,7 +938,7 @@ No additional query or body parameters are required.
         "description": "Product Description",
         "category": "Category Name",
         "price": 100.0,
-        "img_url": "http://example.com/product-image.jpg"
+        "img_url": "http://localhost:3000/product-image.jpg"
       },
       {
         "id": 2,
@@ -937,7 +947,7 @@ No additional query or body parameters are required.
         "description": "Another Description",
         "category": "Another Category",
         "price": 200.0,
-        "img_url": "http://example.com/another-product-image.jpg"
+        "img_url": "http://localhost:3000/another-product-image.jpg"
       }
     ]
   }
@@ -978,6 +988,7 @@ This endpoint allows an authenticated user to add a product to their list of fav
 
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`   
 
 **Body Parameter**  
@@ -1045,6 +1056,7 @@ This endpoint removes a specific product from the authenticated user's list of f
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **Body Parameters**  
@@ -1120,6 +1132,7 @@ This endpoint retrieves all orders for the authenticated user.
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **Parameters:**  
@@ -1177,6 +1190,7 @@ This endpoint retrieves all orders for the authenticated user.
 **cURL Command:**  
 ```bash
 curl -X GET "http://localhost:3000/api/orders" \
+-H "Content-Type": "application/json" \
 -H "Cookie: connect.sid=<your-session-id>"
 ```  
 
@@ -1194,6 +1208,7 @@ This endpoint retrieves the details of a specific order for the authenticated us
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **URL Parameters:**  
@@ -1252,6 +1267,7 @@ This endpoint retrieves the details of a specific order for the authenticated us
 **cURL Command:**  
 ```bash
 curl -X GET "http://localhost:3000/api/order/123" \
+-H "Content-Type": "application/json" \
 -H "Cookie: connect.sid=<your-session-id>"
 ```  
 
@@ -1355,6 +1371,7 @@ This endpoint allows the authenticated user to place an order for all items curr
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **Parameters:**  
@@ -1439,6 +1456,7 @@ This endpoint allows the authenticated user to cancel a specific order.
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **Body Parameters:**  
@@ -1514,6 +1532,7 @@ This endpoint allows the authenticated user to proceed with the checkout process
 #### **Request**  
 
 **Headers:**  
+- `Content-Type: application/json`  
 - `Cookie: connect.sid=<your-session-id>`  
 
 **Parameters:**  
