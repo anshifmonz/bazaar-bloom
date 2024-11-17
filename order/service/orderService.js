@@ -123,43 +123,35 @@ const orderCart = async (userId) => {
   const client = await db.connect();
 
   try {
-
-    // collecting items from user's cart
+    // Fetch cart data
     const { data: cartData } = await axios.get(`http://cart-service:3001/get-cart/${userId}`);
     if (!cartData || cartData.length === 0) return 'Cart is empty';
-    
-    // fetch product details and assemble cart items with price and stock details
-    const cartItems = await Promise.all(
-      cartData.map(async item => {
-        const { data: productData  } = await axios.get(`http://product-service:3001/order-product/${item.product_id}`);
-        const { price, stock_quantity } = productData;
 
-        return {
-          cart_id: item.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price,
-          stock_quantity
-        }
-      })
-    );
+    // Fetch product details
+    const productIds = cartData.map(item => item.product_id);
+    const { data: products } = await axios.post(`http://product-service:3001/cart-products`, { productIds });
     
-    // calculate total price and check stock availability 
+    const cartItems = cartData.map(item => {
+      const product = products.find(p => p.id === item.product_id);
+      return {
+        cart_id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: product.price,
+        stock_quantity: product.stock_quantity
+      };
+    });    
+
+    // Check stock and calculate total price
     let totalPrice = 0;
-    let unavailableItems = [];
-
-    cartItems.forEach(item => {
-      if (item.stock_quantity < item.quantity) {
-        unavailableItems.push({ cart_id: item.cart_id, productId: item.product_id, available: item.stock_quantity });
-      } else {
-        totalPrice += item.price * item.quantity
-      }
-    })
+    const unavailableItems = cartItems.filter(item => item.stock_quantity < item.quantity);
     if (unavailableItems.length > 0) return { noStock: unavailableItems };
+
+    totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     await client.query('BEGIN');
 
-    // placing order
+    // Create order
     const orderResp = await client.query(
       'INSERT INTO orders (user_id, total_price) VALUES ($1, $2) RETURNING id',
       [userId, totalPrice]
@@ -168,33 +160,30 @@ const orderCart = async (userId) => {
 
     for (const item of cartItems) {
       await client.query(
-        'INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)\
-        VALUES ($1, $2, $3, $4)',
+        'INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES ($1, $2, $3, $4)',
         [orderId, item.product_id, item.quantity, item.price]
       );
-      
-      // decrease the stock_quantity of purchased products
-      const { status } = await axios.post(`http://product-service:3001/update-stock/`, {
-        productId: item.product_id,
-        quantity: item.quantity
-      });
-      if (status !== 200) throw new Error('Server error');
     }
 
-    // removing items from cart after successful order
-    const { status } = await axios.post(`http://cart-service:3001/remove-cart-item/`, {
-      userId
-    });
+    // Batch update stock quantities
+    const stockUpdateData = cartItems.map(item => ({
+      product_id: item.product_id, quantity: item.quantity
+    }));
+    
+    const { status } = await axios.post(`http://product-service:3001/update-stock/`, { stockUpdateData });
     if (status !== 200) throw new Error('Server error');
 
+    await axios.post(`http://cart-service:3001/remove-cart-item/`, { userId });
+
     await client.query('COMMIT');
-  } catch (err) {    
+  } catch (err) {
     await client.query('ROLLBACK');
+    console.log(err);
     throw new Error('Server error');
   } finally {
     client.release();
   }
-}
+};
 
 const cancelOrder = async (userId, orderId) => {
   try {
