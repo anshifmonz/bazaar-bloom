@@ -12,6 +12,8 @@ router.post('/save-card', isAuthenticated, saveCardController);
 router.post('/get-card', isAuthenticated, getCardController);
 router.post('/delete-card', isAuthenticated, deleteCardController);
 
+router.get('/get-card', getCardController);
+
 router.all('*', (req, res) => res.status(404).send('Invalid path'))
 
 export default router;
