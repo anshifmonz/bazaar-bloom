@@ -1,7 +1,5 @@
-import stripe from "stripe";
+import stripeClient from '../../config/stripeConfig.js';
 import { getCustomerId } from "../../service/cardServices.js";
-
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 
 const getCardController = async (req, res) => {
   const userId = req.user.id;

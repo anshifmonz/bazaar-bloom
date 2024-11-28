@@ -1,7 +1,5 @@
-import stripe from 'stripe';
+import stripeClient from '../../config/stripeConfig.js';
 import { deleteCard, getCustomerId } from "../../service/cardServices.js";
-
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 
 const deleteCardController = async (req, res) => {
   const userId = req.user.id;
