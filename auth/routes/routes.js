@@ -6,6 +6,10 @@ import logOutUser from '../controller/logOutController.js';
 
 import updateProfileController from "../controller/updateProfileController.js";
 
+import saveCardController from "../controller/saveCardController.js";
+import getCardController from "../controller/getCardController.js";
+import deleteCardController from "../controller/deleteCardController.js";
+
 import emailValidator from '../middleware/emailValidator.js';
 import { isAuthenticated, isNotAuthenticated } from '../middleware/authCheckMiddleware.js';
 
@@ -16,6 +20,10 @@ router.post('/logIn', emailValidator, isNotAuthenticated, logInUser);
 router.post('/logOut', isAuthenticated, logOutUser);
 
 router.post('/update-profile', isAuthenticated, updateProfileController);
+
+router.post('/save-card', isAuthenticated, saveCardController);
+router.post('/get-card', isAuthenticated, getCardController);
+router.post('/delete-card', isAuthenticated, deleteCardController);
 
 router.get('/validate-session', (req, res) => {  
   if (req.isAuthenticated()) return res.json({ isAuthenticated: true, user: req.user });
