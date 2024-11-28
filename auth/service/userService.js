@@ -24,10 +24,11 @@ const getUserByEmail = async (email, need) => {
   }
 }
 
-const CreateUser = async (name, email, passwd) => {
+const CreateUser = async (firstName, lastName, email, passwd) => {
   try {
     const res = await db.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, passwd]
+      'INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *', 
+      [firstName, lastName, email, passwd]
     )
     return res.rows;
   } catch (err) {

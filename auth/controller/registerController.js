@@ -16,14 +16,14 @@ const createCart = async (userId) => {
 }
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   try {
     const isExist = await getUserByEmail(email, 'exist')
     if (isExist) return res.status(302).json({ message: 'User already exist' })
     
     const hashPasswd = await hashPassword(password);
-    const result = await CreateUser(name, email, hashPasswd);
+    const result = await CreateUser(firstName, lastName, email, hashPasswd);
     const userId = result[0].id;
 
     res.status(201).json({ success: true, message: 'User created' });
