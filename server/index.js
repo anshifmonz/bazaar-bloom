@@ -5,7 +5,7 @@ import 'dotenv/config';
 const app = express();
 const PORT = process.env.PORT;
 
-app.use('/api/auth', proxy('http://user-service:3001'));
+app.use('/api/user', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3001'));
 app.use('/api/product', proxy('http://product-service:3001'));
 app.use('/api/favorite', proxy('http://favorite-service:3001'));

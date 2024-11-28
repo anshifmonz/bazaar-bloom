@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const checkAuthStatus = async (req, res) => {
   try {
-    const response = await axios.get('http://user-service:3001/validate-session', {
+    const response = await axios.get('http://user-service:3001/auth/validate-session', {
       headers: { Cookie: req.headers.cookie },
     });
 
