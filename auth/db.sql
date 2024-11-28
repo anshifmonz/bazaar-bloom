@@ -15,6 +15,17 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_cards (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  card_token VARCHAR(255) NOT NULL,
+  customer_id VARCHAR(255) NOT NULL,
+  is_default BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Date the card was added
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Date the card record was last updated
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE "session" (
   "sid" VARCHAR(44) PRIMARY KEY NOT NULL,
   "sess" json NOT NULL,
