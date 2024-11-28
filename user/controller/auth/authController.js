@@ -1,5 +1,5 @@
-import { getUserByEmail } from "../service/userService.js";
-import { comaparePasswd } from "../utils/passwordHandler.js";
+import { getUserByEmail } from "../../service/userService.js";
+import { comaparePasswd } from "../../utils/passwordHandler.js";
 
 const authenticateUser = async (email, passwd, cb) => {
   try {

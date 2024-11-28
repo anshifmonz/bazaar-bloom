@@ -1,5 +1,5 @@
-import { updateProfile } from "../service/userService.js";
-import getQuery from "../utils/profileDataExtractor.js";
+import { updateProfile } from "../../service/userService.js";
+import getQuery from "../../utils/profileDataExtractor.js";
 
 async function updateProfileController(req, res) {
   const userId = req.user.id;

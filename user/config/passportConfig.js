@@ -1,7 +1,7 @@
 import passport from 'passport'
 import { Strategy } from "passport-local";
 
-import authenticateUser from '../controller/authController.js';
+import authenticateUser from '../controller/auth/authController.js';
 import { getUserById } from "../service/userService.js";
 
 const initializePassport = (passport) => {

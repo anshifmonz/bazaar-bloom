@@ -1,5 +1,5 @@
 import stripe from "stripe";
-import { getCustomerId, saveCard } from "../service/userService.js";
+import { getCustomerId, saveCard } from "../../service/cardServices.js";
 
 const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 

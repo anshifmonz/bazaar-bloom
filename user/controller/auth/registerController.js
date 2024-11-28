@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { CreateUser, getUserByEmail } from '../service/userService.js';
-import { hashPassword } from '../utils/passwordHandler.js';
+import { CreateUser, getUserByEmail } from '../../service/userService.js';
+import { hashPassword } from '../../utils/passwordHandler.js';
 
 const createCart = async (userId) => {
   const retries = 3;
