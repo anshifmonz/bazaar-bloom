@@ -36,4 +36,13 @@ const CreateUser = async (firstName, lastName, email, passwd) => {
   }
 }
 
-export { getUserByEmail, getUserById, CreateUser }
+const updateProfile = async (query, values) => {
+  try {
+    const resp = await db.query(query, values);
+    return resp.rows;
+  } catch (err) {
+    throw new Error('updateProfile: ' + err);
+  }
+}
+
+export { getUserByEmail, getUserById, CreateUser, updateProfile }
