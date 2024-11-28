@@ -1,5 +1,42 @@
 import axios from "axios";
 
+const ShowCartCheckout = async (userId, userAddress) => {
+  try {
+    // Fetch cart data
+    const { data: cartData } = await axios.get(`http://cart-service:3001/get-cart/${userId}`);
+    if (!cartData || cartData.length === 0) return 'Cart is empty';
+    
+    // Fetch product data
+    const productIds = cartData.map(item => item.product_id);
+    const { data: products } = await axios.post(`http://product-service:3001/cart-products`, { productIds });
+    
+    const checkoutItems = cartData.map(item => {
+      const product = products.find(p => p.id === item.product_id);
+      return {
+        cart_id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        name: product.name,
+        image_url: product.image_url,
+        price: product.price,
+        stock_quantity: product.stock_quantity
+      };
+    });
+    
+    let totalPrice = 0;
+    const unavailableItems = checkoutItems.filter(item => item.stock_quantity < item.quantity);
+    if (unavailableItems.length > 0) return { noStock: unavailableItems };
+    
+    totalPrice = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);  
+    
+    const { cards } = await axios.get(`http://user-service:3001/card/get-card`);
+    
+    return { checkoutItems, totalPrice, userAddress, cards };
+  } catch (err) {    
+    throw new Error('Server error');
+  }
+}
+
 const checkoutOrder = async (userId) => {
   try {
     
@@ -28,4 +65,4 @@ const checkoutOrder = async (userId) => {
   }
 }
 
-export default checkoutOrder;
+export { ShowCartCheckout, checkoutOrder };
