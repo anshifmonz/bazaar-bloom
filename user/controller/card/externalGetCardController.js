@@ -1,5 +1,5 @@
 import stripeClient from '../../config/stripeConfig.js';
-import { getCustomerId } from "../../service/cardServices";
+import { getCustomerId } from "../../service/cardServices.js";
 
 const externalGeCardController = async (req, res) => {
   const userId = req.userId;
