@@ -23,16 +23,16 @@ const ShowCartCheckout = async (userId, userAddress) => {
       };
     });
     
-    let totalPrice = 0;
     const unavailableItems = checkoutItems.filter(item => item.stock_quantity < item.quantity);
     if (unavailableItems.length > 0) return { noStock: unavailableItems };
     
-    totalPrice = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);  
+    const totalPrice = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);  
     
-    const { cards } = await axios.get(`http://user-service:3001/card/get-card`);
-    
+    const { data: cardResponse } = await axios.get(`http://user-service:3001/card/get-card`);
+    const cards = cardResponse.cards || [];
+
     return { checkoutItems, totalPrice, userAddress, cards };
-  } catch (err) {    
+  } catch (err) {
     throw new Error('Server error');
   }
 }

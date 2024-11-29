@@ -6,7 +6,8 @@ const showCartCheckoutController = async (req, res) => {
 
   try {
     const resp = await ShowCartCheckout(userId, userAddress);
-    if (resp?.noStock) return res.status(404).json({ success: false, data: resp });
+    if (resp?.noStock)
+      return res.status(404).json({ success: false, message: 'Some items are out of stock', data: resp });
     res.status(200).json({ success: true, data: resp });
   } catch (err) {    
     res.status(500).json({ success: false, message: 'Server error' });
