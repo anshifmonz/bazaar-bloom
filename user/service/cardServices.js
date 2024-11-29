@@ -29,4 +29,24 @@ const deleteCard = async (userId, cardId) => {
   }
 }
 
-export { getCustomerId, saveCard, deleteCard }
+const toggleDefaultCard = async (userId, cardToken) => {
+  const clearDefaultQuery = `UPDATE user_cards SET is_default = false WHERE user_id = $1`;
+  const setDefaultQuery = `UPDATE user_cards SET is_default = true WHERE card_token = $1 AND user_id = $2`;
+
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+    await client.query(clearDefaultQuery, [userId]);
+    await client.query(setDefaultQuery, [cardToken, userId]);
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('toggleDefaultCard:', err);
+    throw new Error('Failed to toggle the default card');
+  } finally {
+    client.release();
+  }
+};
+
+export { getCustomerId, saveCard, deleteCard, toggleDefaultCard }
