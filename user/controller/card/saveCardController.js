@@ -27,8 +27,8 @@ const saveCardController = async (req, res) => {
       customer: customerId
     });
 
-    const userCardToken = paymentMethod.id;
-    await saveCard(userId, customerId, userCardToken);
+    const userCardId = paymentMethod.id;
+    await saveCard(userId, customerId, userCardId);
 
     res.status(200).json({
       success: true,
