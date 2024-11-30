@@ -5,7 +5,7 @@ const addressValidator = (address) => {
 
   const { street, city, state, postal_code, country } = address;
   
-  const allowedFields = ["street", "city", "state", "postal_code", "country"];
+  const allowedFields = ["id", "street", "city", "state", "postal_code", "country"];
   const extraFields = Object.keys(address).filter(key => !allowedFields.includes(key));
   if (extraFields.length > 0)
     return { valid: false, message: `Unexpected fields: ${extraFields.join(", ")}` };
