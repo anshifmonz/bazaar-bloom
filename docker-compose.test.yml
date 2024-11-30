@@ -20,7 +20,7 @@ services:
 
   user-service:
     build:
-      context: ./auth
+      context: ./user
     image: user-service
     container_name: user-service
     expose:
