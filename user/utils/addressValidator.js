@@ -14,9 +14,8 @@ const addressValidator = (address) => {
   if (!city) return { valid: false, message: "City is required." };
   if (!state) return { valid: false, message: "State is required." };
   if (!country) return { valid: false, message: "Country is required." };
-  if (!postal_code || !/^\d{5}(-\d{4})?$/.test(postal_code)) {
+  if (!postal_code || !/^\d{4,6}(-\d{4})?$/.test(postal_code))
     return { valid: false, message: "Postal code is invalid." };
-  }
 
   return { valid: true };
 };
