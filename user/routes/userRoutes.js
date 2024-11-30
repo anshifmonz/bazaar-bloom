@@ -1,6 +1,7 @@
 import e from "express";
 
 import updateProfileController from "../controller/user/updateProfileController.js";
+import externalUpdateAddressController from "../controller/user/externalUpdateAddressController.js";
 import updateAddressController from "../controller/user/updateAddressController.js";
 import externalAddAddressController from "../controller/user/externalAddAddressController.js";
 import addAddressController from "../controller/user/addAddressController.js";
@@ -15,6 +16,7 @@ router.post('/update-address', isAuthenticated, updateAddressController);
 router.post('/add-address', isAuthenticated, addAddressController);
 router.post('/delete-address', isAuthenticated, deleteAddressController);
 
+router.post('/external-update-address', externalUpdateAddressController);
 router.post('/external-add-address', externalAddAddressController);
 
 router.all('*', (req, res) => res.status(404).send('Invalid path'))
