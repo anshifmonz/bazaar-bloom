@@ -1,12 +1,9 @@
-import addressValidator from './addressValidator.js';
-
 const getQuery = (body, userId) => {
   const {
     first_name,
     last_name,
     email,
     phone_number,
-    address,
     preferred_currency,
     language
   } = body;
@@ -20,7 +17,6 @@ const getQuery = (body, userId) => {
     last_name,
     email,
     phone_number,
-    address,
     preferred_currency,
     language,
   };
@@ -28,13 +24,7 @@ const getQuery = (body, userId) => {
   try {
     Object.keys(fields).forEach((key) => {
       if (fields[key]) {
-        if (key === 'address') {
-          const addressValidation = addressValidator(fields[key]);
-          if (!addressValidation.valid) throw new Error(addressValidation.message);
-          values.push(JSON.stringify(fields[key]));
-        } else {
-          values.push(fields[key]);
-        }
+        values.push(fields[key]);
         query += `${key} = $${valuesIndex}, `;
         valuesIndex++;
       }
