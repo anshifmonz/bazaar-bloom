@@ -43,6 +43,7 @@ const cartCheckout = async (userId, email, currency, body) => {
     isNewAddress,
     isNeedUpdate,
     isNeedAddAddress,
+    cardId,
     token,
     isNewCard,
     isNeedAddCard  
@@ -77,33 +78,38 @@ const cartCheckout = async (userId, email, currency, body) => {
     // Handle address logic
     if (isNewAddress && isNeedAddAddress) {
       const { status } = await axios.post(`http://user-service:3001/details/external-add-address`, { userId, address });
-      if (status === 500) return { success: false }
+      if (status !== 200) throw new Error('Failed to add address');
     } else if (isNeedUpdate) {
       const { status } = await axios.put(`http://user-service:3001/details/external-update-address`, { userId, address });
-      if (status === 500) return { success: false }
+      if (status !== 200) throw new Error('Failed to update address');
     }
 
     // Handle card logic
-    if (isNewCard) {
-      const { status } = await axios.post(`http://user-service:3001/card/external-add-card`, {
+    let cardToUse = cardId;
+    if (!cardToUse && isNewCard) {
+      const { status, data } = await axios.post(`http://user-service:3001/card/external-add-card`, {
         userId,
         email,
         token,
         save: isNeedAddCard,
       });
-      if (status !== 200) return { success: false };
+      if (status !== 200) throw new Error('Failed to add card');
+      cardToUse = data.cardId;
     }
+
+    if (!cardToUse) return { success: false, message: 'No valid card available for payment' };
 
     // Initiate payment
     const { data: payment } = await axios.post(`http://payment-service:3001/initiate-payment`, {
-      amout: totalPrice,
+      amount: totalPrice,
       currency,
-      description: 'Testing'
+      description: 'Testing',
+      cardId: cardToUse,
     });
 
     return payment.clientSecret;
   } catch (err) {
-    throw new Error('cartCheckout failed: ' + err);
+    throw new Error('cartCheckout failed: ' + err.message);
   }
 }
 
