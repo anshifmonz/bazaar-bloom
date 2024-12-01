@@ -5,6 +5,7 @@ import getCardController from "../controller/card/getCardController.js";
 import deleteCardController from "../controller/card/deleteCardController.js";
 
 import externalGetCardController from "../controller/card/externalGetCardController.js";
+import externalAddCardController from "../controller/card/externalAddCardController.js";
 
 import { isAuthenticated } from '../middleware/authCheckMiddleware.js';
 
@@ -15,6 +16,7 @@ router.post('/get-card', isAuthenticated, getCardController);
 router.post('/delete-card', isAuthenticated, deleteCardController);
 
 router.get('/get-card', externalGetCardController);
+router.get('/external-add-card', externalAddCardController);
 
 router.all('*', (req, res) => res.status(404).send('Invalid path'))
 
