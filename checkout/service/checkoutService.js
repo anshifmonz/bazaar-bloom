@@ -101,7 +101,7 @@ const cartCheckout = async (userId, email, currency, body) => {
       description: 'Testing'
     });
 
-    return { success: true, payment };
+    return payment.clientSecret;
   } catch (err) {
     throw new Error('cartCheckout failed: ' + err);
   }
