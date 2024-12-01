@@ -37,32 +37,74 @@ const ShowCartCheckout = async (userId, userAddress) => {
   }
 }
 
-const checkoutOrder = async (userId) => {
-  try {
-    
-    const { data: orderData } = await axios.post('http://order-service:3001/order-item', {
-      userId
-    });
-    
-    const checkoutItems = await Promise.all(
-      orderData.map(async item => {
-        const { data: productData } = await axios.get(`http://product-service:3001/cart-product/${item.product_id}`);
-        const { name } = productData;        
-        
-        return {
-          price_at_purchase: item.price_at_purchase,
-          quantity: item.quantity,
-          total_price: item.total_price,
-          product_id: item.product_id,
-          product_name: name
-        }
-      })
-    );    
+const cartCheckout = async (userId, email, currency, body) => {
+  const { 
+    address,
+    isNewAddress,
+    isNeedUpdate,
+    isNeedAddAddress,
+    token,
+    isNewCard,
+    isNeedAddCard  
+  } = body;
 
-    return checkoutItems;    
-  } catch (err) {    
-    throw new Error('Server error');
+  try {
+    // Fetch cart data
+    const { data: cartData } = await axios.get(`http://cart-service:3001/get-cart/${userId}`);
+    if (!cartData || cartData.length === 0) return { success: false, message: 'Cart is empty' };
+
+    // Fetch product data
+    const productIds = cartData.map(item => item.product_id);
+    const { data: products } = await axios.post(`http://product-service:3001/cart-products`, { productIds });
+
+    // Prepare checkout items
+    const checkoutItems = cartData.map(item => {
+      const product = products.find(p => p.id === item.product_id);
+      return {
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: product.price,
+          stock_quantity: product.stock_quantity
+      };
+    });
+
+    // Validate stock availability
+    const unavailableItems = checkoutItems.filter(item => item.quantity > item.stock_quantity);
+    if (unavailableItems.length > 0) return { success: false, noStock: unavailableItems, message: 'Some items are out of stock' };
+    
+    const totalPrice = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // Handle address logic
+    if (isNewAddress && isNeedAddAddress) {
+      const { status } = await axios.post(`http://user-service:3001/details/external-add-address`, { userId, address });
+      if (status === 500) return { success: false }
+    } else if (isNeedUpdate) {
+      const { status } = await axios.put(`http://user-service:3001/details/external-update-address`, { userId, address });
+      if (status === 500) return { success: false }
+    }
+
+    // Handle card logic
+    if (isNewCard) {
+      const { status } = await axios.post(`http://user-service:3001/card/external-add-card`, {
+        userId,
+        email,
+        token,
+        save: isNeedAddCard,
+      });
+      if (status !== 200) return { success: false };
+    }
+
+    // Initiate payment
+    const { data: payment } = await axios.post(`http://payment-service:3001/initiate-payment`, {
+      amout: totalPrice,
+      currency,
+      description: 'Testing'
+    });
+
+    return { success: true, payment };
+  } catch (err) {
+    throw new Error('cartCheckout failed: ' + err);
   }
 }
 
-export { ShowCartCheckout, checkoutOrder };
+export { ShowCartCheckout, cartCheckout };
