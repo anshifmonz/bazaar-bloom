@@ -28,8 +28,8 @@ const ShowCartCheckout = async (userId, userAddress) => {
     
     const totalPrice = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);  
     
-    const { data: cardResponse } = await axios.get(`http://user-service:3001/card/get-card`);
-    const cards = cardResponse.cards || [];
+    const { data: cardResponse } = await axios.get(`http://user-service:3001/card/get-card/${userId}`);
+    const cards = cardResponse?.cards || [];
 
     return { checkoutItems, totalPrice, userAddress, cards };
   } catch (err) {
