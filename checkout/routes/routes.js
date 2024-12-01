@@ -1,10 +1,10 @@
 import express from "express";
-import checkoutController from "../controller/checkoutController.js";
+import cartCheckoutController from "../controller/cartCheckoutController.js";
 import showCartCheckoutController from "../controller/showCartCheckoutController.js";
 
 const router = express.Router();
 
-router.post('/', checkoutController)
+router.post('/', cartCheckoutController)
 router.post('/', showCartCheckoutController)
 
 export default router;

@@ -1,6 +1,6 @@
 import { cartCheckout } from "../service/checkoutService.js";
 
-const checkoutController = async (req, res) => {
+const cartCheckoutController = async (req, res) => {
   const userId = req.user.id;
   const email = req.user.id;
   const currency = req.user.currency;
@@ -18,4 +18,4 @@ const checkoutController = async (req, res) => {
   }
 }
 
-export default checkoutController;
+export default cartCheckoutController;
