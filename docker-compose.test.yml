@@ -15,6 +15,8 @@ services:
       - product-service
       - favorite-service
       - order-service
+      - checkout-service
+      - payment-service
     networks:
       - backend
 
@@ -215,6 +217,20 @@ services:
     environment:
       - NODE_ENV=test
       - PORT=${CHECKOUT_SERVICE_PORT}
+    networks:
+      - backend
+
+  payment-service:
+    build:
+      context: ./payment
+    image: payment-service
+    container_name: payment-service
+    expose:
+      - "${PAYMENT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=test
+      - PORT=${PAYMENT_SERVICE_PORT}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     networks:
       - backend
 
