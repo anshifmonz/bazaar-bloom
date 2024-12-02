@@ -1,15 +1,12 @@
 import session from 'express-session';
-import connectPgSimple from 'connect-pg-simple';
-import 'dotenv/config';
+import {RedisStore} from 'connect-redis';
+import { createClient } from 'redis';
 
-import { db } from './dbConfig.js';
-
-const pgSession = connectPgSimple(session);
+const redisClient = createClient({ url: "redis://redis:6379" });
+redisClient.connect().catch(console.error);
 
 const sessionConfig = session({
-  store: new pgSession({
-    pool: db
-  }),
+  store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
