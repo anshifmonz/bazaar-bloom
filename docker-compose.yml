@@ -28,6 +28,22 @@ services:
     networks:
       - backend
 
+  security-service:
+    build:
+      context: ./security
+    image: security-service
+    container_name: security-service
+    expose:
+      - "${SECURITY_SERVICE_PORT}"
+    environment:
+      - PORT=${SECURITY_SERVICE_PORT}
+    depends_on:
+      - redis
+    volumes:
+      - ./security:/app
+    networks:
+      - backend
+      
   user-service:
     build:
       context: ./user
