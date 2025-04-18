@@ -1,4 +1,17 @@
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - server-1
+      - server-2
+      - server-3
+    networks:
+      - backend
+
   redis:
     image: redis:latest
     container_name: redis-service
@@ -7,13 +20,55 @@ services:
     networks:
       - backend
       
-  server:
+  server-1:
     build:
       context: ./server
     image: server
-    container_name: server
-    ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+    container_name: server-1
+    expose:
+      - "${SERVER_PORT}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${SERVER_PORT}
+    depends_on:
+      - user-service
+      - cart-service
+      - product-service
+      - favorite-service
+      - order-service
+      - checkout-service
+      - payment-service
+    networks:
+      - backend
+  
+  server-2:
+    build:
+      context: ./server
+    image: server
+    container_name: server-2
+    expose:
+      - "${SERVER_PORT}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${SERVER_PORT}
+    depends_on:
+      - user-service
+      - cart-service
+      - product-service
+      - favorite-service
+      - order-service
+      - checkout-service
+      - payment-service
+    networks:
+      - backend
+
+  server-3:
+    build:
+      context: ./server
+    image: server
+    container_name: server-3
+    expose:
+      - "${SERVER_PORT}"
     environment:
       - NODE_ENV=production
       - PORT=${SERVER_PORT}
