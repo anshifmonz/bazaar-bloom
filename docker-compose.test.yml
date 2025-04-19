@@ -1,6 +1,26 @@
+x-server-base: &server_base
+    build:
+      context: ./server
+    image: server
+    expose:
+      - "${SERVER_PORT}"
+    environment:
+      - NODE_ENV=test
+      - PORT=${SERVER_PORT}
+    depends_on:
+      - user-service
+      - cart-service
+      - product-service
+      - favorite-service
+      - order-service
+      - checkout-service
+      - payment-service
+    networks:
+      - backend
+
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "80:80"
     volumes:
@@ -19,70 +39,19 @@ services:
       - "${REDIS_PORT}"
     networks:
       - backend
-      
+
   server-1:
-    build:
-      context: ./server
-    image: server
+    <<: *server_base
     container_name: server-1
-    expose:
-      - "${SERVER_PORT}"
-    environment:
-      - NODE_ENV=test
-      - PORT=${SERVER_PORT}
-    depends_on:
-      - user-service
-      - cart-service
-      - product-service
-      - favorite-service
-      - order-service
-      - checkout-service
-      - payment-service
-    networks:
-      - backend
 
   server-2:
-    build:
-      context: ./server
-    image: server
+    <<: *server_base
     container_name: server-2
-    expose:
-      - "${SERVER_PORT}"
-    environment:
-      - NODE_ENV=test
-      - PORT=${SERVER_PORT}
-    depends_on:
-      - user-service
-      - cart-service
-      - product-service
-      - favorite-service
-      - order-service
-      - checkout-service
-      - payment-service
-    networks:
-      - backend
 
   server-3:
-    build:
-      context: ./server
-    image: server
+    <<: *server_base
     container_name: server-3
-    expose:
-      - "${SERVER_PORT}"
-    environment:
-      - NODE_ENV=test
-      - PORT=${SERVER_PORT}
-    depends_on:
-      - user-service
-      - cart-service
-      - product-service
-      - favorite-service
-      - order-service
-      - checkout-service
-      - payment-service
-    networks:
-      - backend
-      
+
   user-service:
     build:
       context: ./user
@@ -110,9 +79,16 @@ services:
       - POSTGRES_USER=${USER_DB_USER}
       - POSTGRES_PASSWORD=${USER_DB_PASSWORD}
       - POSTGRES_DB=${USER_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - user_service:/var/lib/postgresql/data
-      - ./auth/db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./user/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
     networks:
       - backend
     healthcheck:
@@ -121,6 +97,20 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  pgbouncer-user:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer-user
+    expose:
+      - "${PG_BOUNCER_PORT}"
+    environment:
+      DATABASE_URL: ${USER_SERVICE_DB_INTERNAL}
+      POOL_MODE: session
+      AUTH_TYPE: md5
+    depends_on:
+      - userDb
+    networks:
+      - backend
 
   cart-service:
     build:
@@ -147,9 +137,16 @@ services:
       - POSTGRES_USER=${CART_DB_USER}
       - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
       - POSTGRES_DB=${CART_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - cart_service:/var/lib/postgresql/data
       - ./cart/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
     networks:
       - backend
     healthcheck:
@@ -158,6 +155,20 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  pgbouncer-cart:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer-cart
+    expose:
+      - "${PG_BOUNCER_PORT}"
+    environment:
+      DATABASE_URL: ${CART_SERVICE_DB_INTERNAL}
+      POOL_MODE: session
+      AUTH_TYPE: md5
+    depends_on:
+      - cartDb
+    networks:
+      - backend
 
   product-service:
     build:
@@ -184,9 +195,16 @@ services:
       - POSTGRES_USER=${PRODUCT_DB_USER}
       - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
       - POSTGRES_DB=${PRODUCT_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - product_service:/var/lib/postgresql/data
       - ./product/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
     networks:
       - backend
     healthcheck:
@@ -195,6 +213,20 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  pgbouncer-product:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer-product
+    expose:
+      - "${PG_BOUNCER_PORT}"
+    environment:
+      DATABASE_URL: ${PRODUCT_SERVICE_DB_INTERNAL}
+      POOL_MODE: session
+      AUTH_TYPE: md5
+    depends_on:
+      - productDb
+    networks:
+      - backend
 
   favorite-service:
     build:
@@ -221,9 +253,16 @@ services:
       - POSTGRES_USER=${FAVORITE_DB_USER}
       - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
       - POSTGRES_DB=${FAVORITE_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - favorite_service:/var/lib/postgresql/data
       - ./favorite/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
     networks:
       - backend
     healthcheck:
@@ -232,6 +271,20 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  pgbouncer-favorite:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer-favorite
+    expose:
+      - "${PG_BOUNCER_PORT}"
+    environment:
+      DATABASE_URL: ${FAVORITE_SERVICE_DB_INTERNAL}
+      POOL_MODE: session
+      AUTH_TYPE: md5
+    depends_on:
+      - favoriteDb
+    networks:
+      - backend
 
   order-service:
     build:
@@ -258,9 +311,16 @@ services:
       - POSTGRES_USER=${ORDER_DB_USER}
       - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
       - POSTGRES_DB=${ORDER_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - order_service:/var/lib/postgresql/data
       - ./order/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
     networks:
       - backend
     healthcheck:
@@ -269,6 +329,20 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+
+  pgbouncer-order:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer-order
+    expose:
+      - "${PG_BOUNCER_PORT}"
+    environment:
+      DATABASE_URL: ${ORDER_SERVICE_DB_INTERNAL}
+      POOL_MODE: session
+      AUTH_TYPE: md5
+    depends_on:
+      - orderDb
+    networks:
+      - backend
 
   checkout-service:
     build:
