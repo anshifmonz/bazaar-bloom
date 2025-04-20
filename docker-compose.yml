@@ -19,6 +19,8 @@ x-server-base: &server_base
       - backend
 
 services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infra
   nginx:
     image: nginx:alpine
     ports:
@@ -49,6 +51,8 @@ services:
     networks:
       - backend
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Server replicas
   server-1:
     <<: *server_base
     container_name: server-1
@@ -61,6 +65,8 @@ services:
     <<: *server_base
     container_name: server-3
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Micro-Services
   user-service:
     build:
       context: ./user
@@ -79,6 +85,99 @@ services:
     networks:
       - backend
 
+  cart-service:
+    build:
+      context: ./cart
+    image: cart-service
+    container_name: cart-service
+    expose:
+      - "${CART_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - DB_URL=${CART_SERVICE_DB}
+      - PORT=${CART_SERVICE_PORT}
+    depends_on:
+      - cartDb
+    networks:
+      - backend
+
+  product-service:
+    build:
+      context: ./product
+    image: product-service
+    container_name: product-service
+    expose:
+      - "${PRODUCT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - DB_URL=${PRODUCT_SERVICE_DB}
+      - PORT=${PRODUCT_SERVICE_PORT}
+    depends_on:
+      - productDb
+    networks:
+      - backend
+
+  favorite-service:
+    build:
+      context: ./favorite
+    image: favorite-service
+    container_name: favorite-service
+    expose:
+      - "${FAVORITE_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - DB_URL=${FAVORITE_SERVICE_DB}
+      - PORT=${FAVORITE_SERVICE_PORT}
+    depends_on:
+      - favoriteDb
+    networks:
+      - backend
+
+  order-service:
+    build:
+      context: ./order
+    image: order-service
+    container_name: order-service
+    expose:
+      - "${ORDER_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - DB_URL=${ORDER_SERVICE_DB}
+      - PORT=${ORDER_SERVICE_PORT}
+    depends_on:
+      - orderDb
+    networks:
+      - backend
+
+  checkout-service:
+    build:
+      context: ./checkout
+    image: checkout-service
+    container_name: checkout-service
+    expose:
+      - "${CHECKOUT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${CHECKOUT_SERVICE_PORT}
+    networks:
+      - backend
+
+  payment-service:
+    build:
+      context: ./payment
+    image: payment-service
+    container_name: payment-service
+    expose:
+      - "${PAYMENT_SERVICE_PORT}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${PAYMENT_SERVICE_PORT}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    networks:
+      - backend
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Databases
   userDb:
     image: postgres
     container_name: userDb
@@ -107,6 +206,120 @@ services:
       retries: 5
       start_period: 30s
 
+  cartDb:
+    image: postgres
+    container_name: cartDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${CART_DB_USER}
+      - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
+      - POSTGRES_DB=${CART_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - cart_service:/var/lib/postgresql/data
+      - ./cart/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  
+  productDb:
+    image: postgres
+    container_name: productDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${PRODUCT_DB_USER}
+      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - POSTGRES_DB=${PRODUCT_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - product_service:/var/lib/postgresql/data
+      - ./product/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+  
+  favoriteDb:
+    image: postgres
+    container_name: favoriteDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${FAVORITE_DB_USER}
+      - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
+      - POSTGRES_DB=${FAVORITE_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - favorite_service:/var/lib/postgresql/data
+      - ./favorite/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  orderDb:
+    image: postgres
+    container_name: orderDb
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${ORDER_DB_USER}
+      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
+      - POSTGRES_DB=${ORDER_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - order_service:/var/lib/postgresql/data
+      - ./order/db.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - postgres
+      - -c
+      - password_encryption=md5
+      - -c
+      - listen_addresses=*
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PgBouncers
   pgbouncer-user:
     image: edoburu/pgbouncer
     build:
@@ -136,50 +349,6 @@ services:
       timeout: 10s
       retries: 5
 
-  cart-service:
-    build:
-      context: ./cart
-    image: cart-service
-    container_name: cart-service
-    expose:
-      - "${CART_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - DB_URL=${CART_SERVICE_DB}
-      - PORT=${CART_SERVICE_PORT}
-    depends_on:
-      - cartDb
-    networks:
-      - backend
-
-  cartDb:
-    image: postgres
-    container_name: cartDb
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=${CART_DB_USER}
-      - POSTGRES_PASSWORD=${CART_DB_PASSWORD}
-      - POSTGRES_DB=${CART_DB_NAME}
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - cart_service:/var/lib/postgresql/data
-      - ./cart/db.sql:/docker-entrypoint-initdb.d/init.sql
-    command:
-      - postgres
-      - -c
-      - password_encryption=md5
-      - -c
-      - listen_addresses=*
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-    
   pgbouncer-cart:
     image: edoburu/pgbouncer
     container_name: pgbouncer-cart
@@ -208,50 +377,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  product-service:
-    build:
-      context: ./product
-    image: product-service
-    container_name: product-service
-    expose:
-      - "${PRODUCT_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - DB_URL=${PRODUCT_SERVICE_DB}
-      - PORT=${PRODUCT_SERVICE_PORT}
-    depends_on:
-      - productDb
-    networks:
-      - backend
-
-  productDb:
-    image: postgres
-    container_name: productDb
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=${PRODUCT_DB_USER}
-      - POSTGRES_PASSWORD=${PRODUCT_DB_PASSWORD}
-      - POSTGRES_DB=${PRODUCT_DB_NAME}
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - product_service:/var/lib/postgresql/data
-      - ./product/db.sql:/docker-entrypoint-initdb.d/init.sql
-    command:
-      - postgres
-      - -c
-      - password_encryption=md5
-      - -c
-      - listen_addresses=*
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
 
   pgbouncer-product:
     image: edoburu/pgbouncer
@@ -282,50 +407,6 @@ services:
       timeout: 10s
       retries: 5
 
-  favorite-service:
-    build:
-      context: ./favorite
-    image: favorite-service
-    container_name: favorite-service
-    expose:
-      - "${FAVORITE_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - DB_URL=${FAVORITE_SERVICE_DB}
-      - PORT=${FAVORITE_SERVICE_PORT}
-    depends_on:
-      - favoriteDb
-    networks:
-      - backend
-
-  favoriteDb:
-    image: postgres
-    container_name: favoriteDb
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=${FAVORITE_DB_USER}
-      - POSTGRES_PASSWORD=${FAVORITE_DB_PASSWORD}
-      - POSTGRES_DB=${FAVORITE_DB_NAME}
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - favorite_service:/var/lib/postgresql/data
-      - ./favorite/db.sql:/docker-entrypoint-initdb.d/init.sql
-    command:
-      - postgres
-      - -c
-      - password_encryption=md5
-      - -c
-      - listen_addresses=*
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-
   pgbouncer-favorite:
     image: edoburu/pgbouncer
     container_name: pgbouncer-favorite
@@ -355,50 +436,6 @@ services:
       timeout: 10s
       retries: 5
 
-  order-service:
-    build:
-      context: ./order
-    image: order-service
-    container_name: order-service
-    expose:
-      - "${ORDER_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - DB_URL=${ORDER_SERVICE_DB}
-      - PORT=${ORDER_SERVICE_PORT}
-    depends_on:
-      - orderDb
-    networks:
-      - backend
-
-  orderDb:
-    image: postgres
-    container_name: orderDb
-    expose:
-      - "5432"
-    environment:
-      - POSTGRES_USER=${ORDER_DB_USER}
-      - POSTGRES_PASSWORD=${ORDER_DB_PASSWORD}
-      - POSTGRES_DB=${ORDER_DB_NAME}
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - order_service:/var/lib/postgresql/data
-      - ./order/db.sql:/docker-entrypoint-initdb.d/init.sql
-    command:
-      - postgres
-      - -c
-      - password_encryption=md5
-      - -c
-      - listen_addresses=*
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-
   pgbouncer-order:
     image: edoburu/pgbouncer
     container_name: pgbouncer-order
@@ -427,33 +464,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  checkout-service:
-    build:
-      context: ./checkout
-    image: checkout-service
-    container_name: checkout-service
-    expose:
-      - "${CHECKOUT_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - PORT=${CHECKOUT_SERVICE_PORT}
-    networks:
-      - backend
-
-  payment-service:
-    build:
-      context: ./payment
-    image: payment-service
-    container_name: payment-service
-    expose:
-      - "${PAYMENT_SERVICE_PORT}"
-    environment:
-      - NODE_ENV=production
-      - PORT=${PAYMENT_SERVICE_PORT}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-    networks:
-      - backend
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Redis Exporter
