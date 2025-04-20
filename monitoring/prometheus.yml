@@ -1,0 +1,213 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  # — Prometheus itself —————————————————————————————
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          environment: 'dev'
+          tier: 'monitoring'
+
+  # — Server replicas ——————————————————————————————————
+  - job_name: 'server'
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 'server-1:4000'
+          - 'server-2:4000'
+          - 'server-3:4000'
+        labels:
+          service: 'server'
+          environment: 'production'
+          tier: 'backend'
+
+  # — Microservices ——————————————————————————————————
+  - job_name: 'user-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['user-service:3001']
+        labels:
+          service: 'user'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'cart-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['cart-service:3001']
+        labels:
+          service: 'cart'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'product-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['product-service:3001']
+        labels:
+          service: 'product'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'favorite-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['favorite-service:3001']
+        labels:
+          service: 'favorite'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'order-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['order-service:3001']
+        labels:
+          service: 'order'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'checkout-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['checkout-service:3001']
+        labels:
+          service: 'checkout'
+          environment: 'dev'
+          tier: 'backend'
+
+  - job_name: 'payment-service'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['payment-service:3001']
+        labels:
+          service: 'payment'
+          environment: 'dev'
+          tier: 'backend'
+
+  # — Redis ——————————————————————————————————————————
+  - job_name: 'redis'
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          environment: 'dev'
+          tier: 'cache'
+
+  # — PostgreSQL Exporters ————————————————————————
+  - job_name: 'postgres_user'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter-user:9187']
+        labels:
+          service: 'postgres'
+          db: 'user'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'postgres_cart'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter-cart:9187']
+        labels:
+          service: 'postgres'
+          db: 'cart'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'postgres_product'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter-product:9187']
+        labels:
+          service: 'postgres'
+          db: 'product'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'postgres_favorite'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter-favorite:9187']
+        labels:
+          service: 'postgres'
+          db: 'favorite'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'postgres_order'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter-order:9187']
+        labels:
+          service: 'postgres'
+          db: 'order'
+          environment: 'dev'
+          tier: 'database'
+
+  # — PgBouncer Exporters —————————————————————————————
+  - job_name: 'pgbouncer_user'
+    scrape_interval: 30s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['pgbouncer-exporter-user:9127']
+        labels:
+          service: 'pgbouncer'
+          db: 'user'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'pgbouncer_cart'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['pgbouncer-exporter-cart:9127']
+        labels:
+          service: 'pgbouncer'
+          db: 'cart'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'pgbouncer_product'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['pgbouncer-exporter-product:9127']
+        labels:
+          service: 'pgbouncer'
+          db: 'product'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'pgbouncer_favorite'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['pgbouncer-exporter-favorite:9127']
+        labels:
+          service: 'pgbouncer'
+          db: 'favorite'
+          environment: 'dev'
+          tier: 'database'
+
+  - job_name: 'pgbouncer_order'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['pgbouncer-exporter-order:9127']
+        labels:
+          service: 'pgbouncer'
+          db: 'order'
+          environment: 'dev'
+          tier: 'database'

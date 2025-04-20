@@ -1,0 +1,2 @@
+"anshifmonz" "md5de0affdbdda8dac00c82d3b10a49ec07"
+"pgbouncer_exporter" "md574135a40ebf2fcad6510ea1d458f7316"
