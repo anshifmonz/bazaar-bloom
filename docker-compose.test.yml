@@ -40,6 +40,15 @@ services:
     networks:
       - backend
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+
   server-1:
     <<: *server_base
     container_name: server-1
@@ -100,17 +109,32 @@ services:
 
   pgbouncer-user:
     image: edoburu/pgbouncer
+    build:
+      context: ./pgbouncer-config/user
     container_name: pgbouncer-user
     expose:
       - "${PG_BOUNCER_PORT}"
     environment:
-      DATABASE_URL: ${USER_SERVICE_DB_INTERNAL}
-      POOL_MODE: session
-      AUTH_TYPE: md5
+      DB_HOST: userDb
+      DB_NAME: ${USER_DB_NAME}
+      DB_USER: ${USER_DB_USER}
+      DB_PASSWORD: ${USER_DB_PASSWORD}
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes:
+      - ./pgbouncer-config/user/pgbouncer.template.ini:/etc/pgbouncer/pgbouncer.template.ini
+      - ./pgbouncer-config/user/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./pgbouncer-config/user/users.txt:/etc/pgbouncer/users.txt
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
     depends_on:
       - userDb
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   cart-service:
     build:
@@ -155,20 +179,35 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-
+    
   pgbouncer-cart:
     image: edoburu/pgbouncer
     container_name: pgbouncer-cart
+    build:
+      context: ./pgbouncer-config/cart
     expose:
       - "${PG_BOUNCER_PORT}"
     environment:
-      DATABASE_URL: ${CART_SERVICE_DB_INTERNAL}
-      POOL_MODE: session
-      AUTH_TYPE: md5
+      DB_HOST: cartDb
+      DB_NAME: ${CART_DB_NAME}
+      DB_USER: ${CART_DB_USER}
+      DB_PASSWORD: ${CART_DB_PASSWORD}
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes:
+      - ./pgbouncer-config/cart/pgbouncer.template.ini:/etc/pgbouncer/pgbouncer.template.ini
+      - ./pgbouncer-config/cart/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./pgbouncer-config/cart/users.txt:/etc/pgbouncer/users.txt
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
     depends_on:
       - cartDb
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   product-service:
     build:
@@ -217,16 +256,31 @@ services:
   pgbouncer-product:
     image: edoburu/pgbouncer
     container_name: pgbouncer-product
+    build:
+      context: ./pgbouncer-config/product
     expose:
       - "${PG_BOUNCER_PORT}"
     environment:
-      DATABASE_URL: ${PRODUCT_SERVICE_DB_INTERNAL}
-      POOL_MODE: session
-      AUTH_TYPE: md5
+      DB_HOST: productDb
+      DB_NAME: ${PRODUCT_DB_NAME}
+      DB_USER: ${PRODUCT_DB_USER}
+      DB_PASSWORD: ${PRODUCT_DB_PASSWORD}
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes:
+      - ./pgbouncer-config/product/pgbouncer.template.ini:/etc/pgbouncer/pgbouncer.template.ini
+      - ./pgbouncer-config/product/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./pgbouncer-config/product/users.txt:/etc/pgbouncer/users.txt
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
     depends_on:
       - productDb
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   favorite-service:
     build:
@@ -275,16 +329,31 @@ services:
   pgbouncer-favorite:
     image: edoburu/pgbouncer
     container_name: pgbouncer-favorite
+    build:
+      context: ./pgbouncer-config/favorite
     expose:
       - "${PG_BOUNCER_PORT}"
     environment:
-      DATABASE_URL: ${FAVORITE_SERVICE_DB_INTERNAL}
-      POOL_MODE: session
-      AUTH_TYPE: md5
+      DB_HOST: favoriteDb
+      DB_NAME: ${FAVORITE_DB_NAME}
+      DB_USER: ${FAVORITE_DB_USER}
+      DB_PASSWORD: ${FAVORITE_DB_PASSWORD}
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes:
+      - ./pgbouncer-config/favorite/pgbouncer.template.ini:/etc/pgbouncer/pgbouncer.template.ini
+      - ./pgbouncer-config/favorite/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./pgbouncer-config/favorite/users.txt:/etc/pgbouncer/users.txt
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
     depends_on:
       - favoriteDb
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   order-service:
     build:
@@ -333,16 +402,31 @@ services:
   pgbouncer-order:
     image: edoburu/pgbouncer
     container_name: pgbouncer-order
+    build:
+      context: ./pgbouncer-config/order
     expose:
       - "${PG_BOUNCER_PORT}"
     environment:
-      DATABASE_URL: ${ORDER_SERVICE_DB_INTERNAL}
-      POOL_MODE: session
-      AUTH_TYPE: md5
+      DB_HOST: orderDb
+      DB_NAME: ${ORDER_DB_NAME}
+      DB_USER: ${ORDER_DB_USER}
+      DB_PASSWORD: ${ORDER_DB_PASSWORD}
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes:
+      - ./pgbouncer-config/order/pgbouncer.template.ini:/etc/pgbouncer/pgbouncer.template.ini
+      - ./pgbouncer-config/order/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./pgbouncer-config/order/users.txt:/etc/pgbouncer/users.txt
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
     depends_on:
       - orderDb
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   checkout-service:
     build:
@@ -368,6 +452,149 @@ services:
       - NODE_ENV=test
       - PORT=${PAYMENT_SERVICE_PORT}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    networks:
+      - backend
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis Exporter
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    expose:
+      - 9121
+    command:
+      - '--redis.addr=redis:${REDIS_PORT}'
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Postgres Exporters (one per DB)
+  postgres-exporter-user:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter-user
+    expose:
+      - 9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${USER_DB_USER}:${USER_DB_PASSWORD}@userDb:5432/${USER_DB_NAME}?sslmode=disable"
+    depends_on:
+      - userDb
+    networks:
+      - backend
+
+  postgres-exporter-cart:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter-cart
+    expose:
+      - 9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${CART_DB_USER}:${CART_DB_PASSWORD}@cartDb:5432/${CART_DB_NAME}?sslmode=disable"
+    depends_on:
+      - cartDb
+    networks:
+      - backend
+
+  postgres-exporter-product:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter-product
+    expose:
+      - 9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${PRODUCT_DB_USER}:${PRODUCT_DB_PASSWORD}@productDb:5432/${PRODUCT_DB_NAME}?sslmode=disable"
+    depends_on:
+      - productDb
+    networks:
+      - backend
+
+  postgres-exporter-favorite:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter-favorite
+    expose:
+      - 9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${FAVORITE_DB_USER}:${FAVORITE_DB_PASSWORD}@favoriteDb:5432/${FAVORITE_DB_NAME}?sslmode=disable"
+    depends_on:
+      - favoriteDb
+    networks:
+      - backend
+
+  postgres-exporter-order:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter-order
+    expose:
+      - 9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${ORDER_DB_USER}:${ORDER_DB_PASSWORD}@orderDb:5432/${ORDER_DB_NAME}?sslmode=disable"
+    depends_on:
+      - orderDb
+    networks:
+      - backend
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PgBouncer Exporters
+  pgbouncer-exporter-user:
+    image: prometheuscommunity/pgbouncer-exporter:latest
+    container_name: pgbouncer-exporter-user
+    expose:
+      - 9127
+    command:
+    - --pgBouncer.connectionString=postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@pgbouncer-user:${PG_BOUNCER_PORT}/pgbouncer?sslmode=disable
+    depends_on:
+      pgbouncer-user:
+        condition: service_healthy
+    networks:
+      - backend
+
+  pgbouncer-exporter-cart:
+    image: prometheuscommunity/pgbouncer-exporter:latest
+    container_name: pgbouncer-exporter-cart
+    expose:
+      - 9127
+    command:
+    - --pgBouncer.connectionString=postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@pgbouncer-cart:${PG_BOUNCER_PORT}/pgbouncer?sslmode=disable
+    depends_on:
+      pgbouncer-cart:
+        condition: service_healthy
+    networks:
+      - backend
+
+  pgbouncer-exporter-product:
+    image: prometheuscommunity/pgbouncer-exporter:latest
+    container_name: pgbouncer-exporter-product
+    expose:
+      - 9127
+    command:
+    - --pgBouncer.connectionString=postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@pgbouncer-product:${PG_BOUNCER_PORT}/pgbouncer?sslmode=disable
+    depends_on:
+      pgbouncer-product:
+        condition: service_healthy
+    networks:
+      - backend
+
+  pgbouncer-exporter-favorite:
+    image: prometheuscommunity/pgbouncer-exporter:latest
+    container_name: pgbouncer-exporter-favorite
+    expose:
+      - 9127
+    command:
+    - --pgBouncer.connectionString=postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@pgbouncer-favorite:${PG_BOUNCER_PORT}/pgbouncer?sslmode=disable
+    depends_on:
+      pgbouncer-favorite:
+        condition: service_healthy
+    networks:
+      - backend
+
+  pgbouncer-exporter-order:
+    image: prometheuscommunity/pgbouncer-exporter:latest
+    container_name: pgbouncer-exporter-order
+    expose:
+      - 9127
+    command:
+    - --pgBouncer.connectionString=postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@pgbouncer-order:${PG_BOUNCER_PORT}/pgbouncer?sslmode=disable
+    depends_on:
+      pgbouncer-order:
+        condition: service_healthy
     networks:
       - backend
 
