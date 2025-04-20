@@ -482,6 +482,23 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+    expose:
+      - 9100
+    networks:
+      - backend
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Redis Exporter
   redis-exporter:
     image: oliver006/redis_exporter:latest

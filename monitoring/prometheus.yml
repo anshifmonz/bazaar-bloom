@@ -13,6 +13,15 @@ scrape_configs:
           environment: 'dev'
           tier: 'monitoring'
 
+  # — Node Exporter —————————————————————————————————————
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'host'
+          environment: 'production'
+          tier: 'backend'
+
   # — Server replicas ——————————————————————————————————
   - job_name: 'server'
     scrape_interval: 5s
