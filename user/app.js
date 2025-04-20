@@ -3,10 +3,13 @@ import 'dotenv/config';
 
 import sessionConfig from './config/sessionConfig.js';
 import passportConfig from './config/passportConfig.js';
+import registerMetrics from './observability/metrics.js';
 import Routes from './routes/routes.js';
 
 const app = express();
 const PORT = process.env.PORT;
+
+registerMetrics(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

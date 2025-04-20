@@ -1,9 +1,12 @@
 import express from 'express';
 import proxy from 'express-http-proxy';
+import registerMetrics from './observability/metrics.js';
 import 'dotenv/config';
 
 const app = express();
 const PORT = process.env.PORT;
+
+registerMetrics(app);
 
 app.use('/api/user', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3001'));
