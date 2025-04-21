@@ -1,6 +1,6 @@
 import client from 'prom-client';
 
-const SERVICE_NAME = process.env.SERVICE_NAME || 'my-service';
+const SERVICE_NAME = process.env.SERVICE_NAME || 'user-service';
 const ENV = process.env.NODE_ENV || 'development';
 
 const registry = new client.Registry();
