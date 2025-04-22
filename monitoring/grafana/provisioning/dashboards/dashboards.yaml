@@ -1,0 +1,51 @@
+apiVersion: 1
+
+providers:
+  - name: 'prometheus'
+    orgId: 1
+    folder: 'Prometheus'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/prometheus
+  - name: 'node-exporter'
+    orgId: 1
+    folder: 'Node'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/node-exporter
+  - name: 'microservices-ops'
+    orgId: 1
+    folder: 'Microservices'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/microservices
+  - name: 'postgres-exporter'
+    orgId: 1
+    folder: 'Postgres'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/postgres
+  - name: 'redis-exporter'
+    orgId: 1
+    folder: 'Redis'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/redis
+  - name: 'docker'
+    orgId: 1
+    folder: 'Docker'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/docker
