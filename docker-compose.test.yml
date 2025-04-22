@@ -31,14 +31,19 @@ services:
   # Infra
   nginx:
     image: nginx:alpine
+    container_name: nginx
     ports:
       - "80:80"
+      - "3000:3000"
+      - "9090:9090"
+      - "3100:3100"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - server-1
       - server-2
       - server-3
+      - grafana
     networks:
       - backend
 
@@ -55,8 +60,8 @@ services:
     container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
+    expose:
+      - "${PROMETHEUS_PORT}"
     networks:
       - backend
 
@@ -67,8 +72,8 @@ services:
     volumes:
       - ./monitoring/loki-config.yml:/etc/loki/loki-config.yml
       - loki_data:/loki
-    ports:
-      - "${LOKI_PORT}:${LOKI_PORT}"
+    expose:
+      - "${LOKI_PORT}"
     networks:
       - backend
 
@@ -84,8 +89,8 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    ports:
-      - "${GRAFANA_PORT}:${GRAFANA_PORT}"
+    expose:
+      - "${GRAFANA_PORT}"
     networks:
       - backend
 
