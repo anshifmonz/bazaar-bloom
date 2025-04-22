@@ -147,6 +147,11 @@ services:
     <<: *default_labels
     labels:
       service: "user-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${USER_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   cart-service:
     build:
@@ -166,6 +171,11 @@ services:
     <<: *default_labels
     labels:
       service: "cart-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${CART_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   product-service:
     build:
@@ -185,6 +195,11 @@ services:
     <<: *default_labels
     labels:
       service: "product-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${PRODUCT_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   favorite-service:
     build:
@@ -204,6 +219,11 @@ services:
     <<: *default_labels
     labels:
       service: "favorite-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${FAVORITE_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   order-service:
     build:
@@ -223,6 +243,11 @@ services:
     <<: *default_labels
     labels:
       service: "order-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${ORDER_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   checkout-service:
     build:
@@ -239,6 +264,11 @@ services:
     <<: *default_labels
     labels:
       service: "checkout-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${CHECKOUT_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   payment-service:
     build:
@@ -256,6 +286,11 @@ services:
     <<: *default_labels
     labels:
       service: "payment-service"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:${PAYMENT_SERVICE_PORT}/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Databases
@@ -282,7 +317,7 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER} -d ${USER_DB_NAME}"]
-      interval: 1m30s
+      interval: 15s
       timeout: 30s
       retries: 5
       start_period: 30s
@@ -313,7 +348,7 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
-      interval: 1m30s
+      interval: 15s
       timeout: 30s
       retries: 5
       start_period: 30s
@@ -344,7 +379,7 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
-      interval: 1m30s
+      interval: 15s
       timeout: 30s
       retries: 5
       start_period: 30s
@@ -375,7 +410,7 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
-      interval: 1m30s
+      interval: 15s
       timeout: 30s
       retries: 5
       start_period: 30s
@@ -406,7 +441,7 @@ services:
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
-      interval: 1m30s
+      interval: 15s
       timeout: 30s
       retries: 5
       start_period: 30s
