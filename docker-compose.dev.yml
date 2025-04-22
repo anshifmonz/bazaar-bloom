@@ -1,24 +1,32 @@
+version: '3.8'
+
+x-default-labels: &default_labels
+  labels:
+    log:        "true"
+    environment: "${NODE_ENV}"
+
 x-server-base: &server_base
-    build:
-      context: ./server
-    image: server
-    expose:
-      - "${SERVER_PORT}"
-    environment:
-      - NODE_ENV=development
-      - PORT=${SERVER_PORT}
-    volumes:
-      - ./server:/app
-    depends_on:
-      - user-service
-      - cart-service
-      - product-service
-      - favorite-service
-      - order-service
-      - checkout-service
-      - payment-service
-    networks:
-      - backend
+  build:
+    context: ./server
+  image: server
+  expose:
+    - "${SERVER_PORT}"
+  environment:
+    - NODE_ENV=development
+    - PORT=${SERVER_PORT}
+  volumes:
+    - ./server:/app
+  depends_on:
+    - user-service
+    - cart-service
+    - product-service
+    - favorite-service
+    - order-service
+    - checkout-service
+    - payment-service
+  networks:
+    - backend
+  <<: *default_labels
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -45,11 +53,52 @@ services:
       - backend
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v3.3.0
+    container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
+    networks:
+      - backend
+
+  loki:
+    image: grafana/loki:3.4.3
+    container_name: loki
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/loki-config.yml
+      - loki_data:/loki
+    ports:
+      - "${LOKI_PORT}:${LOKI_PORT}"
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:11.5.3
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "${GRAFANA_PORT}:${GRAFANA_PORT}"
+    networks:
+      - backend
+
+  promtail:
+    image: grafana/promtail:3.4.3
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./monitoring/promtail-config.yml:/etc/promtail/promtail-config.yml
+    command: -config.file=/etc/promtail/promtail-config.yml
     networks:
       - backend
 
@@ -58,14 +107,20 @@ services:
   server-1:
     <<: *server_base
     container_name: server-1
+    labels:
+      service: "server-1"
 
   server-2:
     <<: *server_base
     container_name: server-2
+    labels:
+      service: "server-2"
 
   server-3:
     <<: *server_base
     container_name: server-3
+    labels:
+      service: "server-3"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Micro-Services
@@ -88,6 +143,9 @@ services:
       - ./user:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "user-service"
 
   cart-service:
     build:
@@ -106,6 +164,9 @@ services:
       - ./cart:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "cart-service"
 
   product-service:
     build:
@@ -124,6 +185,9 @@ services:
       - ./product:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "product-service"
 
   favorite-service:
     build:
@@ -142,6 +206,9 @@ services:
       - ./favorite:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "favorite-service"
 
   order-service:
     build:
@@ -160,6 +227,9 @@ services:
       - ./order:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "order-service"
 
   checkout-service:
     build:
@@ -175,6 +245,9 @@ services:
       - ./checkout:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "checkout-service"
 
   payment-service:
     build:
@@ -191,6 +264,9 @@ services:
       - ./payment:/app
     networks:
       - backend
+    <<: *default_labels
+    labels:
+      service: "payment-service"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Databases
@@ -221,6 +297,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    <<: *default_labels
+    labels:
+      service: "user-db"
 
   cartDb:
     image: postgres
@@ -249,6 +328,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    <<: *default_labels
+    labels:
+      service: "cart-db"
   
   productDb:
     image: postgres
@@ -277,6 +359,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    <<: *default_labels
+    labels:
+      service: "product-db"
   
   favoriteDb:
     image: postgres
@@ -305,6 +390,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    <<: *default_labels
+    labels:
+      service: "favorite-db"
 
   orderDb:
     image: postgres
@@ -333,6 +421,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    <<: *default_labels
+    labels:
+      service: "order-db"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # PgBouncers
@@ -364,6 +455,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    <<: *default_labels
+    labels:
+      service: "pgbouncer-user"
 
   pgbouncer-cart:
     image: edoburu/pgbouncer
@@ -393,6 +487,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    <<: *default_labels
+    labels:
+      service: "pgbouncer-cart"
 
   pgbouncer-product:
     image: edoburu/pgbouncer
@@ -422,6 +519,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    <<: *default_labels
+    labels:
+      service: "pgbouncer-product"
 
   pgbouncer-favorite:
     image: edoburu/pgbouncer
@@ -451,6 +551,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    <<: *default_labels
+    labels:
+      service: "pgbouncer-favorite"
 
   pgbouncer-order:
     image: edoburu/pgbouncer
@@ -480,6 +583,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    <<: *default_labels
+    labels:
+      service: "pgbouncer-order"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Node Exporter
@@ -655,4 +761,8 @@ volumes:
   favorite_service:
     driver: local
   order_service:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
     driver: local
