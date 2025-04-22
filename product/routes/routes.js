@@ -27,6 +27,7 @@ router.get('/favorite-product/:productId', getFavProductController);
 router.get('/order-product/:productId', getOrderProductController);
 router.post('/update-stock/', updateProductStockController);
 
-router.all('*', (req, res) => res.status(404).send('Invalid path'))
+router.get('/health', (_req, res) => res.status(200).send('OK'));
+router.all('*', (_req, res) => res.status(404).send('Invalid path'));
 
 export default router;
