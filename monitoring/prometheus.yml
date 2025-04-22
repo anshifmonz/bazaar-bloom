@@ -19,8 +19,8 @@ scrape_configs:
       - targets: ['node-exporter:9100']
         labels:
           service: 'host'
-          environment: 'production'
-          tier: 'backend'
+          environment: 'dev'
+          tier: 'infrastructure'
 
   # — Server replicas ——————————————————————————————————
   - job_name: 'server'
@@ -33,7 +33,7 @@ scrape_configs:
           - 'server-3:4000'
         labels:
           service: 'server'
-          environment: 'production'
+          environment: 'dev'
           tier: 'backend'
 
   # — Microservices ——————————————————————————————————
@@ -110,7 +110,6 @@ scrape_configs:
   # — Redis ——————————————————————————————————————————
   - job_name: 'redis'
     scrape_interval: 15s
-    metrics_path: /metrics
     static_configs:
       - targets: ['redis-exporter:9121']
         labels:
@@ -172,7 +171,6 @@ scrape_configs:
   # — PgBouncer Exporters —————————————————————————————
   - job_name: 'pgbouncer_user'
     scrape_interval: 30s
-    metrics_path: /metrics
     static_configs:
       - targets: ['pgbouncer-exporter-user:9127']
         labels:
