@@ -47,8 +47,12 @@ services:
       - server-2
       - server-3
       - grafana
+      - loki
+      - prometheus
     networks:
       - backend
+      - frontend
+      - monitoring
     restart: unless-stopped
 
   redis:
@@ -69,6 +73,8 @@ services:
       - "${PROMETHEUS_PORT}"
     networks:
       - backend
+      - monitoring
+      - prometheus
     restart: unless-stopped
 
   loki:
@@ -81,7 +87,7 @@ services:
     expose:
       - "${LOKI_PORT}"
     networks:
-      - backend
+      - monitoring
     restart: unless-stopped
 
   grafana:
@@ -99,7 +105,7 @@ services:
     expose:
       - "${GRAFANA_PORT}"
     networks:
-      - backend
+      - monitoring
     restart: unless-stopped
 
   promtail:
@@ -112,6 +118,7 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
       - backend
+      - monitoring
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -156,6 +163,7 @@ services:
       - userDb
     networks:
       - backend
+      - user-net
     restart: on-failure:3
     labels:
       <<: *default_labels_map
@@ -181,6 +189,7 @@ services:
       - cartDb
     networks:
       - backend
+      - cart-net
     restart: on-failure:3
     labels:
       <<: *default_labels_map
@@ -206,6 +215,7 @@ services:
       - productDb
     networks:
       - backend
+      - product-net
     restart: on-failure:3
     labels:
       <<: *default_labels_map
@@ -231,6 +241,7 @@ services:
       - favoriteDb
     networks:
       - backend
+      - favorite-net
     restart: on-failure:3
     labels:
       <<: *default_labels_map
@@ -256,6 +267,7 @@ services:
       - orderDb
     networks:
       - backend
+      - order-net
     restart: on-failure:3
     labels:
       <<: *default_labels_map
@@ -333,7 +345,8 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
+      - user-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER} -d ${USER_DB_NAME}"]
@@ -365,7 +378,8 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
+      - cart-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
@@ -397,7 +411,8 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
+      - product-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
@@ -429,7 +444,8 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
+      - favorite-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
@@ -461,7 +477,8 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
+      - order-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
@@ -497,7 +514,8 @@ services:
     depends_on:
       - userDb
     networks:
-      - backend
+      - user-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
@@ -530,7 +548,8 @@ services:
     depends_on:
       - cartDb
     networks:
-      - backend
+      - cart-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
@@ -563,7 +582,8 @@ services:
     depends_on:
       - productDb
     networks:
-      - backend
+      - product-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
@@ -596,7 +616,8 @@ services:
     depends_on:
       - favoriteDb
     networks:
-      - backend
+      - favorite-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
@@ -629,7 +650,8 @@ services:
     depends_on:
       - orderDb
     networks:
-      - backend
+      - order-net
+      - prometheus
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
@@ -654,7 +676,7 @@ services:
     expose:
       - 9100
     networks:
-      - backend
+      - monitoring
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -670,6 +692,7 @@ services:
       - redis
     networks:
       - backend
+      - prometheus
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -684,7 +707,8 @@ services:
     depends_on:
       - userDb
     networks:
-      - backend
+      - user-net
+      - prometheus
     restart: unless-stopped
 
   postgres-exporter-cart:
@@ -697,7 +721,8 @@ services:
     depends_on:
       - cartDb
     networks:
-      - backend
+      - cart-net
+      - prometheus
     restart: unless-stopped
 
   postgres-exporter-product:
@@ -710,7 +735,8 @@ services:
     depends_on:
       - productDb
     networks:
-      - backend
+      - product-net
+      - prometheus
     restart: unless-stopped
 
   postgres-exporter-favorite:
@@ -723,7 +749,8 @@ services:
     depends_on:
       - favoriteDb
     networks:
-      - backend
+      - favorite-net
+      - prometheus
     restart: unless-stopped
 
   postgres-exporter-order:
@@ -736,7 +763,8 @@ services:
     depends_on:
       - orderDb
     networks:
-      - backend
+      - order-net
+      - prometheus
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -752,7 +780,8 @@ services:
       pgbouncer-user:
         condition: service_healthy
     networks:
-      - backend
+      - user-net
+      - prometheus
     restart: unless-stopped
 
   pgbouncer-exporter-cart:
@@ -766,7 +795,8 @@ services:
       pgbouncer-cart:
         condition: service_healthy
     networks:
-      - backend
+      - cart-net
+      - prometheus
     restart: unless-stopped
 
   pgbouncer-exporter-product:
@@ -780,7 +810,8 @@ services:
       pgbouncer-product:
         condition: service_healthy
     networks:
-      - backend
+      - product-net
+      - prometheus
     restart: unless-stopped
 
   pgbouncer-exporter-favorite:
@@ -794,7 +825,8 @@ services:
       pgbouncer-favorite:
         condition: service_healthy
     networks:
-      - backend
+      - favorite-net
+      - prometheus
     restart: unless-stopped
 
   pgbouncer-exporter-order:
@@ -808,11 +840,26 @@ services:
       pgbouncer-order:
         condition: service_healthy
     networks:
-      - backend
+      - order-net
+      - prometheus
     restart: unless-stopped
 
 networks:
   backend:
+    driver: bridge
+  monitoring:
+    driver: bridge
+  frontend:
+    driver: bridge
+  user-net:
+    driver: bridge
+  cart-net:
+    driver: bridge
+  product-net:
+    driver: bridge
+  favorite-net:
+    driver: bridge
+  order-net:
     driver: bridge
 
 volumes:

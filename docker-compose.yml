@@ -47,9 +47,13 @@ services:
       - server-2
       - server-3
       - grafana
+      - loki
+      - prometheus
     networks:
       - backend
-    restart: "unless-stopped"
+      - frontend
+      - monitoring
+    restart: unless-stopped
 
   redis:
     image: redis:latest
@@ -58,7 +62,7 @@ services:
       - "${REDIS_PORT}"
     networks:
       - backend
-    restart: "unless-stopped"
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:v3.3.0
@@ -69,7 +73,9 @@ services:
       - "${PROMETHEUS_PORT}"
     networks:
       - backend
-    restart: "unless-stopped"
+      - monitoring
+      - prometheus
+    restart: unless-stopped
 
   loki:
     image: grafana/loki:3.4.3
@@ -81,8 +87,8 @@ services:
     expose:
       - "${LOKI_PORT}"
     networks:
-      - backend
-    restart: "unless-stopped"
+      - monitoring
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:11.5.3
@@ -90,7 +96,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
@@ -98,8 +105,8 @@ services:
     expose:
       - "${GRAFANA_PORT}"
     networks:
-      - backend
-    restart: "unless-stopped"
+      - monitoring
+    restart: unless-stopped
 
   promtail:
     image: grafana/promtail:3.4.3
@@ -111,7 +118,8 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
       - backend
-    restart: "unless-stopped"
+      - monitoring
+    restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Server replicas
@@ -143,7 +151,6 @@ services:
       context: ./user
     image: user-service
     container_name: user-service
-    restart: on-failure:3
     expose:
       - "${USER_SERVICE_PORT}"
     environment:
@@ -156,6 +163,8 @@ services:
       - userDb
     networks:
       - backend
+      - user-net
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "user-service"
@@ -170,7 +179,6 @@ services:
       context: ./cart
     image: cart-service
     container_name: cart-service
-    restart: on-failure:3
     expose:
       - "${CART_SERVICE_PORT}"
     environment:
@@ -181,6 +189,8 @@ services:
       - cartDb
     networks:
       - backend
+      - cart-net
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "cart-service"
@@ -195,7 +205,6 @@ services:
       context: ./product
     image: product-service
     container_name: product-service
-    restart: on-failure:3
     expose:
       - "${PRODUCT_SERVICE_PORT}"
     environment:
@@ -206,6 +215,8 @@ services:
       - productDb
     networks:
       - backend
+      - product-net
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "product-service"
@@ -220,7 +231,6 @@ services:
       context: ./favorite
     image: favorite-service
     container_name: favorite-service
-    restart: on-failure:3
     expose:
       - "${FAVORITE_SERVICE_PORT}"
     environment:
@@ -231,6 +241,8 @@ services:
       - favoriteDb
     networks:
       - backend
+      - favorite-net
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "favorite-service"
@@ -245,7 +257,6 @@ services:
       context: ./order
     image: order-service
     container_name: order-service
-    restart: on-failure:3
     expose:
       - "${ORDER_SERVICE_PORT}"
     environment:
@@ -256,6 +267,8 @@ services:
       - orderDb
     networks:
       - backend
+      - order-net
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "order-service"
@@ -270,7 +283,6 @@ services:
       context: ./checkout
     image: checkout-service
     container_name: checkout-service
-    restart: on-failure:3
     expose:
       - "${CHECKOUT_SERVICE_PORT}"
     environment:
@@ -278,6 +290,7 @@ services:
       - PORT=${CHECKOUT_SERVICE_PORT}
     networks:
       - backend
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "checkout-service"
@@ -292,7 +305,6 @@ services:
       context: ./payment
     image: payment-service
     container_name: payment-service
-    restart: on-failure:3
     expose:
       - "${PAYMENT_SERVICE_PORT}"
     environment:
@@ -301,6 +313,7 @@ services:
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     networks:
       - backend
+    restart: on-failure:3
     labels:
       <<: *default_labels_map
       service: "payment-service"
@@ -332,8 +345,9 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
-    restart: "unless-stopped"
+      - user-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER} -d ${USER_DB_NAME}"]
       interval: 15s
@@ -364,8 +378,9 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
-    restart: "unless-stopped"
+      - cart-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER} -d ${CART_DB_NAME}"]
       interval: 15s
@@ -396,8 +411,9 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
-    restart: "unless-stopped"
+      - product-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
       interval: 15s
@@ -428,8 +444,9 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
-    restart: "unless-stopped"
+      - favorite-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${FAVORITE_DB_USER} -d ${FAVORITE_DB_NAME}"]
       interval: 15s
@@ -460,8 +477,9 @@ services:
       - -c
       - listen_addresses=*
     networks:
-      - backend
-    restart: "unless-stopped"
+      - order-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER} -d ${ORDER_DB_NAME}"]
       interval: 15s
@@ -496,8 +514,9 @@ services:
     depends_on:
       - userDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - user-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
       interval: 30s
@@ -529,8 +548,9 @@ services:
     depends_on:
       - cartDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - cart-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
       interval: 30s
@@ -562,8 +582,9 @@ services:
     depends_on:
       - productDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - product-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
       interval: 30s
@@ -595,8 +616,9 @@ services:
     depends_on:
       - favoriteDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - favorite-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
       interval: 30s
@@ -628,8 +650,9 @@ services:
     depends_on:
       - orderDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - order-net
+      - prometheus
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PG_BOUNCER_PORT}"]
       interval: 30s
@@ -639,7 +662,7 @@ services:
       <<: *default_labels_map
       service: "pgbouncer-order"
 
-    # ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
   # Node Exporter
   node-exporter:
     image: prom/node-exporter
@@ -653,7 +676,7 @@ services:
     expose:
       - 9100
     networks:
-      - backend
+      - monitoring
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -669,7 +692,8 @@ services:
       - redis
     networks:
       - backend
-    restart: "unless-stopped"
+      - prometheus
+    restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Postgres Exporters (one per DB)
@@ -683,8 +707,9 @@ services:
     depends_on:
       - userDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - user-net
+      - prometheus
+    restart: unless-stopped
 
   postgres-exporter-cart:
     image: prometheuscommunity/postgres-exporter:latest
@@ -696,8 +721,9 @@ services:
     depends_on:
       - cartDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - cart-net
+      - prometheus
+    restart: unless-stopped
 
   postgres-exporter-product:
     image: prometheuscommunity/postgres-exporter:latest
@@ -709,8 +735,9 @@ services:
     depends_on:
       - productDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - product-net
+      - prometheus
+    restart: unless-stopped
 
   postgres-exporter-favorite:
     image: prometheuscommunity/postgres-exporter:latest
@@ -722,8 +749,9 @@ services:
     depends_on:
       - favoriteDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - favorite-net
+      - prometheus
+    restart: unless-stopped
 
   postgres-exporter-order:
     image: prometheuscommunity/postgres-exporter:latest
@@ -735,8 +763,9 @@ services:
     depends_on:
       - orderDb
     networks:
-      - backend
-    restart: "unless-stopped"
+      - order-net
+      - prometheus
+    restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────────────────
   # PgBouncer Exporters
@@ -751,8 +780,9 @@ services:
       pgbouncer-user:
         condition: service_healthy
     networks:
-      - backend
-    restart: "unless-stopped"
+      - user-net
+      - prometheus
+    restart: unless-stopped
 
   pgbouncer-exporter-cart:
     image: prometheuscommunity/pgbouncer-exporter:latest
@@ -765,8 +795,9 @@ services:
       pgbouncer-cart:
         condition: service_healthy
     networks:
-      - backend
-    restart: "unless-stopped"
+      - cart-net
+      - prometheus
+    restart: unless-stopped
 
   pgbouncer-exporter-product:
     image: prometheuscommunity/pgbouncer-exporter:latest
@@ -779,8 +810,9 @@ services:
       pgbouncer-product:
         condition: service_healthy
     networks:
-      - backend
-    restart: "unless-stopped"
+      - product-net
+      - prometheus
+    restart: unless-stopped
 
   pgbouncer-exporter-favorite:
     image: prometheuscommunity/pgbouncer-exporter:latest
@@ -793,8 +825,9 @@ services:
       pgbouncer-favorite:
         condition: service_healthy
     networks:
-      - backend
-    restart: "unless-stopped"
+      - favorite-net
+      - prometheus
+    restart: unless-stopped
 
   pgbouncer-exporter-order:
     image: prometheuscommunity/pgbouncer-exporter:latest
@@ -807,11 +840,26 @@ services:
       pgbouncer-order:
         condition: service_healthy
     networks:
-      - backend
-    restart: "unless-stopped"
+      - order-net
+      - prometheus
+    restart: unless-stopped
 
 networks:
   backend:
+    driver: bridge
+  monitoring:
+    driver: bridge
+  frontend:
+    driver: bridge
+  user-net:
+    driver: bridge
+  cart-net:
+    driver: bridge
+  product-net:
+    driver: bridge
+  favorite-net:
+    driver: bridge
+  order-net:
     driver: bridge
 
 volumes:
