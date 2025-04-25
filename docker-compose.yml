@@ -1,10 +1,12 @@
 version: '3.8'
 
+x-default-labels-map: &default_labels_map
+  log:        "true"
+  environment: "${NODE_ENV}"
+
 x-default-labels: &default_labels
-  labels:
-    log:        "true"
-    environment: "${NODE_ENV}"
-    
+  labels: *default_labels_map
+
 x-server-base: &server_base
   build:
     context: ./server
@@ -25,7 +27,6 @@ x-server-base: &server_base
   networks:
     - backend
   restart: unless-stopped
-  <<: *default_labels
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -118,18 +119,21 @@ services:
     <<: *server_base
     container_name: server-1
     labels:
+      <<: *default_labels_map
       service: "server-1"
 
   server-2:
     <<: *server_base
     container_name: server-2
     labels:
+      <<: *default_labels_map
       service: "server-2"
 
   server-3:
     <<: *server_base
     container_name: server-3
     labels:
+      <<: *default_labels_map
       service: "server-3"
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -152,8 +156,8 @@ services:
       - userDb
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "user-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${USER_SERVICE_PORT}/health"]
@@ -177,8 +181,8 @@ services:
       - cartDb
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "cart-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${CART_SERVICE_PORT}/health"]
@@ -202,8 +206,8 @@ services:
       - productDb
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "product-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${PRODUCT_SERVICE_PORT}/health"]
@@ -227,8 +231,8 @@ services:
       - favoriteDb
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "favorite-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${FAVORITE_SERVICE_PORT}/health"]
@@ -252,8 +256,8 @@ services:
       - orderDb
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "order-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${ORDER_SERVICE_PORT}/health"]
@@ -274,8 +278,8 @@ services:
       - PORT=${CHECKOUT_SERVICE_PORT}
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "checkout-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${CHECKOUT_SERVICE_PORT}/health"]
@@ -297,8 +301,8 @@ services:
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     networks:
       - backend
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "payment-service"
     healthcheck:
       test: ["CMD-SHELL", "curl", "-f", "http://localhost:${PAYMENT_SERVICE_PORT}/health"]
@@ -336,8 +340,8 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "user-db"
 
   cartDb:
@@ -368,10 +372,10 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "cart-db"
-  
+
   productDb:
     image: postgres
     container_name: productDb
@@ -400,10 +404,10 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "product-db"
-  
+
   favoriteDb:
     image: postgres
     container_name: favoriteDb
@@ -432,8 +436,8 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "favorite-db"
 
   orderDb:
@@ -464,8 +468,8 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "order-db"
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -499,8 +503,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "pgbouncer-user"
 
   pgbouncer-cart:
@@ -532,8 +536,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "pgbouncer-cart"
 
   pgbouncer-product:
@@ -565,8 +569,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "pgbouncer-product"
 
   pgbouncer-favorite:
@@ -598,8 +602,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "pgbouncer-favorite"
 
   pgbouncer-order:
@@ -631,8 +635,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    <<: *default_labels
     labels:
+      <<: *default_labels_map
       service: "pgbouncer-order"
 
     # ─────────────────────────────────────────────────────────────────────────────
