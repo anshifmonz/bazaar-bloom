@@ -1,11 +1,12 @@
-FROM node:18.19.0
+FROM node:22.15.0-slim
 
 WORKDIR /app
 
-COPY . .
-
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 RUN npm install -g nodemon
 
-CMD ["nodemon", "app.js"]
+COPY . .
+
+CMD ["nodemon", "--legacy-watch", "app.js"]
