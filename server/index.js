@@ -8,12 +8,16 @@ const PORT = process.env.PORT;
 
 registerMetrics(app);
 
+app.get('/health', (_req, res) => res.status(200).send('OK'));
+
 app.use('/api/user', proxy('http://user-service:3001'));
 app.use('/api/cart', proxy('http://cart-service:3001'));
 app.use('/api/product', proxy('http://product-service:3001'));
 app.use('/api/favorite', proxy('http://favorite-service:3001'));
 app.use('/api/order', proxy('http://order-service:3001'));
 app.use('/api/checkout', proxy('http://checkout-service:3001'));
+
+app.all('*', (_req, res) => res.status(404).send('Invalid path'));
 
 app.listen(PORT, (err) => {
   if (err) throw err;
