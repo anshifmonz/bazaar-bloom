@@ -7,7 +7,7 @@ x-default-labels: &default_labels
 
 x-server-base: &server_base
   build:
-    context: ./server
+    context: ./api-gateway
   image: anshifmonz/server:dev
   expose:
     - "${SERVER_PORT}"
