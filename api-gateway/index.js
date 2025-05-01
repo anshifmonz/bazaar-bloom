@@ -10,12 +10,31 @@ registerMetrics(app);
 
 app.get('/health', (_req, res) => res.status(200).send('OK'));
 
-app.use('/api/user', proxy('http://user-service:3001'));
-app.use('/api/cart', proxy('http://cart-service:3001'));
-app.use('/api/product', proxy('http://product-service:3001'));
-app.use('/api/favorite', proxy('http://favorite-service:3001'));
-app.use('/api/order', proxy('http://order-service:3001'));
-app.use('/api/checkout', proxy('http://checkout-service:3001'));
+const services = [
+  { path: '/api/user',     url: 'http://user-service:3001' },
+  { path: '/api/cart',     url: 'http://cart-service:3001' },
+  { path: '/api/product',  url: 'http://product-service:3001' },
+  { path: '/api/favorite', url: 'http://favorite-service:3001' },
+  { path: '/api/order',    url: 'http://order-service:3001' },
+  { path: '/api/checkout', url: 'http://checkout-service:3001' },
+];
+
+services.forEach(({ path, url }) => {
+  app.use(
+    path,
+    proxy(url, {
+      timeout: 5000,
+      proxyErrorHandler: (_err, res, _next) => {
+        const svc = path.replace('/api/', '');
+        res.status(502).json({
+          error: 'Bad Gateway',
+          service: svc,
+          message: `${svc} service is unreachable`,
+        });
+      }
+    })
+  );
+});
 
 app.all('*', (_req, res) => res.status(404).send('Invalid path'));
 
