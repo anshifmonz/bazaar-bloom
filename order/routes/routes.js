@@ -12,6 +12,8 @@ import getOrderItemDetails from "../controller/external/getOrderItemDetailContro
 
 const router = express.Router();
 
+router.get('/health', (_req, res) => res.status(200).send('OK'));
+
 router.get('/', isAuthenticated, showOrders);
 router.get('/:orderId', isAuthenticated, showAOrderDetails);
 router.post('/product', isAuthenticated, orderProduct);
@@ -20,7 +22,6 @@ router.post('/cancel', isAuthenticated, orderCancel);
 
 router.post('/order-item', getOrderItemDetails);
 
-router.get('/health', (_req, res) => res.status(200).send('OK'));
 router.all('*', (_req, res) => res.status(404).send('Invalid path'));
 
 export default router;

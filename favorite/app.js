@@ -2,7 +2,6 @@ import express from 'express';
 import 'dotenv/config';
 
 import Routes from './routes/routes.js';
-import isAuthenticated from './middleware/authCheckMiddleware.js';
 import registerMetrics from './observability/metrics.js';
 
 const app = express();
@@ -12,7 +11,6 @@ registerMetrics(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(isAuthenticated);
 
 app.use('/', Routes);
 
